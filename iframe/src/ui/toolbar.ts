@@ -62,13 +62,13 @@ function clearPanel(side: 'old' | 'new'): void {
 	const dropZoneId = side === 'old' ? 'drop-zone-left' : 'drop-zone-right';
 	const panelId = side === 'old' ? 'panel-left' : 'panel-right';
 
-	document.getElementById(tableId)!.style.display = 'none';
-	document.getElementById(tableId)!.innerHTML = '';
-	document.getElementById(dropZoneId)!.style.display = 'flex';
-	document.querySelector(`#${panelId} .panel-label`)!.style.display = 'block';
+	(document.getElementById(tableId)! as HTMLElement).style.display = 'none';
+	(document.getElementById(tableId)! as HTMLElement).innerHTML = '';
+	(document.getElementById(dropZoneId)! as HTMLElement).style.display = 'flex';
+	(document.querySelector(`#${panelId} .panel-label`)! as HTMLElement).style.display = 'block';
 
 	state.diffResult = null;
-	document.getElementById('btn-export')!.style.display = 'none';
+	(document.getElementById('btn-export')! as HTMLElement).style.display = 'none';
 	document.getElementById('summary-text')!.textContent = t('summaryText');
 	document.getElementById('summary-badges')!.innerHTML = '';
 }

@@ -64,7 +64,7 @@ function setupFileRowDrop(side: 'old' | 'new'): void {
 		e.preventDefault();
 		e.stopPropagation();
 		// 只在真正离开元素时移除类，避免子元素触发dragleave
-		if (!fileGroup.contains(e.relatedTarget as Node)) {
+		if (!fileGroup.contains((e as DragEvent).relatedTarget as Node)) {
 			fileGroup.classList.remove('drag-over');
 		}
 	});
@@ -74,7 +74,7 @@ function setupFileRowDrop(side: 'old' | 'new'): void {
 		e.stopPropagation();
 		fileGroup.classList.remove('drag-over');
 
-		const files = e.dataTransfer?.files;
+		const files = (e as DragEvent).dataTransfer?.files;
 		if (!files || files.length === 0) {
 			showToast('未检测到文件，请重试', 'warning');
 			return;
@@ -120,9 +120,9 @@ export async function loadFile(file: File, side: 'old' | 'new'): Promise<void> {
 		const dropZoneId = side === 'old' ? 'drop-zone-left' : 'drop-zone-right';
 		const panelId = side === 'old' ? 'panel-left' : 'panel-right';
 
-		document.getElementById(dropZoneId)!.style.display = 'none';
-		document.querySelector(`#${panelId} .panel-label`)!.style.display = 'none';
-		const tableContainer = document.getElementById(tableId)!;
+		(document.getElementById(dropZoneId)! as HTMLElement).style.display = 'none';
+		(document.querySelector(`#${panelId} .panel-label`)! as HTMLElement).style.display = 'none';
+		const tableContainer = document.getElementById(tableId)! as HTMLElement;
 		tableContainer.style.display = 'block';
 		renderTable(tableContainer, bomFile, side);
 
