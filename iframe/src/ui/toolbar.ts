@@ -10,6 +10,8 @@ import { renderDiffResult } from './table';
 import { loadFile } from './drop-zone';
 
 export function initToolbar(): void {
+	const oldImport = document.getElementById('old-file-import')!;
+	const newImport = document.getElementById('new-file-import')!;
 	const oldClear = document.getElementById('old-file-clear')!;
 	const newClear = document.getElementById('new-file-clear')!;
 	const btnCompare = document.getElementById('btn-compare')!;
@@ -19,6 +21,8 @@ export function initToolbar(): void {
 	const filterSelect = document.getElementById('filter-select') as HTMLSelectElement;
 	const searchInput = document.getElementById('search-input') as HTMLInputElement;
 
+	oldImport.addEventListener('click', () => openFileDialog('old'));
+	newImport.addEventListener('click', () => openFileDialog('new'));
 	oldClear.addEventListener('click', () => clearPanel('old'));
 	newClear.addEventListener('click', () => clearPanel('new'));
 
@@ -56,10 +60,12 @@ function clearPanel(side: 'old' | 'new'): void {
 
 	const tableId = side === 'old' ? 'table-left' : 'table-right';
 	const dropZoneId = side === 'old' ? 'drop-zone-left' : 'drop-zone-right';
+	const panelId = side === 'old' ? 'panel-left' : 'panel-right';
 
 	document.getElementById(tableId)!.style.display = 'none';
 	document.getElementById(tableId)!.innerHTML = '';
 	document.getElementById(dropZoneId)!.style.display = 'flex';
+	document.querySelector(`#${panelId} .panel-label`)!.style.display = 'block';
 
 	state.diffResult = null;
 	document.getElementById('btn-export')!.style.display = 'none';

@@ -47,9 +47,53 @@ function setupDropZone(zoneId: string, side: 'old' | 'new'): void {
 	});
 }
 
+function setupFileRowDrop(side: 'old' | 'new'): void {
+	const fileGroup = side === 'old'
+		? document.querySelector('.file-row .file-group:first-child')
+		: document.querySelector('.file-row .file-group:last-child');
+
+	if (!fileGroup) return;
+
+	fileGroup.addEventListener('dragover', (e) => {
+		e.preventDefault();
+		e.stopPropagation();
+		fileGroup.classList.add('drag-over');
+	});
+
+	fileGroup.addEventListener('dragleave', (e) => {
+		e.preventDefault();
+		e.stopPropagation();
+		// 只在真正离开元素时移除类，避免子元素触发dragleave
+		if (!fileGroup.contains(e.relatedTarget as Node)) {
+			fileGroup.classList.remove('drag-over');
+		}
+	});
+
+	fileGroup.addEventListener('drop', async (e) => {
+		e.preventDefault();
+		e.stopPropagation();
+		fileGroup.classList.remove('drag-over');
+
+		const files = e.dataTransfer?.files;
+		if (!files || files.length === 0) {
+			showToast('未检测到文件，请重试', 'warning');
+			return;
+		}
+
+		const file = files[0];
+		if (!isSupportedFile(file)) {
+			showToast('不支持该文件格式，请使用 CSV/TXT/XLS/XLSX 文件', 'error');
+			return;
+		}
+
+		await loadFile(file, side);
+	});
+}
+
 export async function loadFile(file: File, side: 'old' | 'new'): Promise<void> {
 	const pathInput = document.getElementById(`${side === 'old' ? 'old' : 'new'}-file-path`) as HTMLInputElement;
 	pathInput.value = file.name;
+	pathInput.title = file.name;
 
 	try {
 		showLoading(`正在解析 ${file.name}...`);
@@ -74,8 +118,10 @@ export async function loadFile(file: File, side: 'old' | 'new'): Promise<void> {
 
 		const tableId = side === 'old' ? 'table-left' : 'table-right';
 		const dropZoneId = side === 'old' ? 'drop-zone-left' : 'drop-zone-right';
+		const panelId = side === 'old' ? 'panel-left' : 'panel-right';
 
 		document.getElementById(dropZoneId)!.style.display = 'none';
+		document.querySelector(`#${panelId} .panel-label`)!.style.display = 'none';
 		const tableContainer = document.getElementById(tableId)!;
 		tableContainer.style.display = 'block';
 		renderTable(tableContainer, bomFile, side);
@@ -113,6 +159,10 @@ export function showToast(message: string, type: 'error' | 'success' | 'warning'
 export function initDropZones(): void {
 	setupDropZone('drop-zone-left', 'old');
 	setupDropZone('drop-zone-right', 'new');
+
+	// 为文件行添加拖拽支持
+	setupFileRowDrop('old');
+	setupFileRowDrop('new');
 
 	// 阻止 window 级别的默认拖放行为，防止文件被浏览器下载
 	window.addEventListener('dragover', (e) => {

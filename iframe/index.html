@@ -62,11 +62,22 @@
 				flex: 1;
 				display: flex;
 				align-items: center;
-				gap: 8px;
+				gap: 10px;
 				background: var(--bg-surface);
 				border: 1px solid var(--border-light);
 				border-radius: var(--radius);
-				padding: 8px 12px;
+				padding: 10px 14px;
+				transition: all var(--transition);
+			}
+
+			.file-group.drag-over {
+				background: var(--primary-light);
+				border-color: var(--primary);
+			}
+
+			.file-group.drag-over .file-path {
+				border-color: var(--primary);
+				background: var(--bg);
 			}
 
 			.file-group-label {
@@ -78,12 +89,19 @@
 
 			.file-path {
 				flex: 1;
-				background: transparent;
-				border: none;
+				background: var(--bg);
+				border: 1px solid var(--border);
+				border-radius: 4px;
 				color: var(--text);
 				font-size: 13px;
 				outline: none;
 				min-width: 0;
+				padding: 6px 10px;
+				transition: border-color var(--transition);
+			}
+
+			.file-path:focus {
+				border-color: var(--primary);
 			}
 
 			.file-path::placeholder {
@@ -135,12 +153,16 @@
 			}
 
 			.btn-ghost {
-				border-color: transparent;
-				background: transparent;
+				border-color: var(--border);
+				background: var(--bg-elevated);
+				color: var(--text-secondary);
+				font-weight: 500;
 			}
 
 			.btn-ghost:hover {
 				background: var(--bg-hover);
+				border-color: var(--primary);
+				color: var(--text);
 			}
 
 			/* File label styled as button */
@@ -562,12 +584,14 @@
 				<div class="file-group">
 					<span class="file-group-label" data-i18n="oldFile">旧文件</span>
 					<input type="text" id="old-file-path" class="file-path" readonly placeholder="拖拽或选择旧版 BOM..." />
-					<button id="old-file-clear" class="btn btn-ghost btn-icon" title="清空">&times;</button>
+					<button id="old-file-import" class="btn btn-ghost" data-i18n="import" title="导入文件">导入</button>
+					<button id="old-file-clear" class="btn btn-ghost" data-i18n="clear" title="清空">清空</button>
 				</div>
 				<div class="file-group">
 					<span class="file-group-label" data-i18n="newFile">新文件</span>
 					<input type="text" id="new-file-path" class="file-path" readonly placeholder="拖拽或选择新版 BOM..." />
-					<button id="new-file-clear" class="btn btn-ghost btn-icon" title="清空">&times;</button>
+					<button id="new-file-import" class="btn btn-ghost" data-i18n="import" title="导入文件">导入</button>
+					<button id="new-file-clear" class="btn btn-ghost" data-i18n="clear" title="清空">清空</button>
 				</div>
 			</div>
 
@@ -603,6 +627,7 @@
 							<line x1="15" y1="15" x2="12" y2="12"></line>
 						</svg>
 						<p class="drop-zone-title">旧版 BOM 文件</p>
+						<p class="drop-zone-sub">拖拽文件到此处，或点击下方按钮选择</p>
 						<p class="drop-zone-sub">支持 CSV / TXT / XLS / XLSX</p>
 						<label for="file-input-old" class="drop-zone-label">点击选择文件</label>
 					</div>
@@ -622,6 +647,7 @@
 							<line x1="15" y1="15" x2="12" y2="12"></line>
 						</svg>
 						<p class="drop-zone-title">新版 BOM 文件</p>
+						<p class="drop-zone-sub">拖拽文件到此处，或点击下方按钮选择</p>
 						<p class="drop-zone-sub">支持 CSV / TXT / XLS / XLSX</p>
 						<label for="file-input-new" class="drop-zone-label">点击选择文件</label>
 					</div>

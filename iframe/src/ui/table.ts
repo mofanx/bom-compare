@@ -52,6 +52,8 @@ export function renderDiffResult(): void {
 	rightContainer.style.display = 'block';
 	document.getElementById('drop-zone-left')!.style.display = 'none';
 	document.getElementById('drop-zone-right')!.style.display = 'none';
+	document.querySelector('#panel-left .panel-label')!.style.display = 'none';
+	document.querySelector('#panel-right .panel-label')!.style.display = 'none';
 
 	const filteredRows = filterRows(state.diffResult.rows);
 

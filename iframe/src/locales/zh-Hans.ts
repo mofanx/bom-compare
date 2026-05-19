@@ -3,6 +3,7 @@ export default {
 	oldFile: '旧文件',
 	newFile: '新文件',
 	selectFile: '选择文件',
+	import: '导入',
 	clear: '清空',
 
 	// Toolbar

@@ -3,6 +3,7 @@ export default {
 	oldFile: 'Old File',
 	newFile: 'New File',
 	selectFile: 'Select File',
+	import: 'Import',
 	clear: 'Clear',
 
 	// Toolbar
