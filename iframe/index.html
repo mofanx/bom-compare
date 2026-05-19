@@ -304,6 +304,19 @@
 				background: var(--danger-bg);
 			}
 
+			/* Table container drag support */
+			.table-container {
+				height: 100%;
+				overflow: auto;
+				transition: all var(--transition);
+			}
+
+			.table-container.drag-over {
+				background: var(--primary-light);
+				border: 2px dashed var(--primary);
+				border-radius: var(--radius);
+			}
+
 			.drop-zone-icon {
 				width: 48px;
 				height: 48px;

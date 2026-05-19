@@ -90,6 +90,45 @@ function setupFileRowDrop(side: 'old' | 'new'): void {
 	});
 }
 
+function setupTableDrop(tableId: string, side: 'old' | 'new'): void {
+	const tableContainer = document.getElementById(tableId);
+	if (!tableContainer) return;
+
+	tableContainer.addEventListener('dragover', (e) => {
+		e.preventDefault();
+		e.stopPropagation();
+		tableContainer.classList.add('drag-over');
+	});
+
+	tableContainer.addEventListener('dragleave', (e) => {
+		e.preventDefault();
+		e.stopPropagation();
+		if (!tableContainer.contains((e as DragEvent).relatedTarget as Node)) {
+			tableContainer.classList.remove('drag-over');
+		}
+	});
+
+	tableContainer.addEventListener('drop', async (e) => {
+		e.preventDefault();
+		e.stopPropagation();
+		tableContainer.classList.remove('drag-over');
+
+		const files = (e as DragEvent).dataTransfer?.files;
+		if (!files || files.length === 0) {
+			showToast('未检测到文件，请重试', 'warning');
+			return;
+		}
+
+		const file = files[0];
+		if (!isSupportedFile(file)) {
+			showToast('不支持该文件格式，请使用 CSV/TXT/XLS/XLSX 文件', 'error');
+			return;
+		}
+
+		await loadFile(file, side);
+	});
+}
+
 export async function loadFile(file: File, side: 'old' | 'new'): Promise<void> {
 	const pathInput = document.getElementById(`${side === 'old' ? 'old' : 'new'}-file-path`) as HTMLInputElement;
 	pathInput.value = file.name;
@@ -163,6 +202,10 @@ export function initDropZones(): void {
 	// 为文件行添加拖拽支持
 	setupFileRowDrop('old');
 	setupFileRowDrop('new');
+
+	// 为预览区表格添加拖拽支持
+	setupTableDrop('table-left', 'old');
+	setupTableDrop('table-right', 'new');
 
 	// 阻止 window 级别的默认拖放行为，防止文件被浏览器下载
 	window.addEventListener('dragover', (e) => {
