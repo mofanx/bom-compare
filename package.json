@@ -1,0 +1,47 @@
+{
+	"name": "bom-compare",
+	"version": "1.0.0",
+	"description": "BOM 对比工具 - 嘉立创 EDA 扩展",
+	"author": "EasyEDA",
+	"license": "Apache-2.0",
+	"homepage": "https://pro.lceda.cn/",
+	"engines": {
+		"node": ">=20.17.0"
+	},
+	"scripts": {
+		"compile": "rimraf ./dist/ && ts-node ./config/esbuild.prod.ts",
+		"lint": "eslint",
+		"fix": "eslint --fix",
+		"build": "npm run compile && ts-node ./build/packaged.ts",
+		"test": "vitest",
+		"test:run": "vitest run"
+	},
+	"dependencies": {
+		"jschardet": "^3.1.4",
+		"papaparse": "^5.5.2",
+		"xlsx": "^0.18.5"
+	},
+	"devDependencies": {
+		"@antfu/eslint-config": "^5.4.1",
+		"@jlceda/pro-api-types": "^0.2.35",
+		"@types/fs-extra": "^11.0.4",
+		"@types/papaparse": "^5.3.15",
+		"esbuild": "^0.24.2",
+		"eslint": "^9.37.0",
+		"fs-extra": "^11.3.0",
+		"ignore": "^7.0.3",
+		"jszip": "^3.10.1",
+		"lint-staged": "^16.2.3",
+		"rimraf": "^6.0.1",
+		"simple-git-hooks": "^2.13.1",
+		"ts-node": "^10.9.2",
+		"typescript": "^5.7.3",
+		"vitest": "^2.1.8"
+	},
+	"simple-git-hooks": {
+		"pre-commit": "npx lint-staged"
+	},
+	"lint-staged": {
+		"*": "eslint --fix"
+	}
+}

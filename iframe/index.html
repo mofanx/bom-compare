@@ -1,0 +1,694 @@
+<!doctype html>
+<html lang="zh-Hans">
+	<head>
+		<title>BOM Compare</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<style>
+			:root {
+				--bg: #1e1e2e;
+				--bg-surface: #2a2a3c;
+				--bg-elevated: #333347;
+				--bg-hover: #3d3d54;
+				--border: #4a4a5e;
+				--border-light: #3a3a4e;
+				--text: #e4e4f0;
+				--text-secondary: #a0a0b8;
+				--text-muted: #6e6e88;
+				--primary: #7c6ef0;
+				--primary-hover: #6a5cd8;
+				--primary-light: rgba(124, 110, 240, 0.12);
+				--success: #4ade80;
+				--success-bg: rgba(74, 222, 128, 0.1);
+				--warning: #fbbf24;
+				--warning-bg: rgba(251, 191, 36, 0.1);
+				--danger: #f87171;
+				--danger-bg: rgba(248, 113, 113, 0.1);
+				--info: #60a5fa;
+				--info-bg: rgba(96, 165, 250, 0.1);
+				--radius: 8px;
+				--radius-lg: 12px;
+				--shadow: 0 2px 8px rgba(0,0,0,0.2);
+				--transition: 0.2s ease;
+			}
+
+			* { margin: 0; padding: 0; box-sizing: border-box; }
+
+			body {
+				font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+				font-size: 13px;
+				color: var(--text);
+				background: var(--bg);
+				height: 100vh;
+				overflow: hidden;
+			}
+
+			#app {
+				display: flex;
+				flex-direction: column;
+				height: 100vh;
+				padding: 16px;
+				gap: 12px;
+			}
+
+			/* File inputs row */
+			.file-row {
+				display: flex;
+				gap: 12px;
+				flex-shrink: 0;
+			}
+
+			.file-group {
+				flex: 1;
+				display: flex;
+				align-items: center;
+				gap: 8px;
+				background: var(--bg-surface);
+				border: 1px solid var(--border-light);
+				border-radius: var(--radius);
+				padding: 8px 12px;
+			}
+
+			.file-group-label {
+				font-size: 12px;
+				color: var(--text-secondary);
+				white-space: nowrap;
+				font-weight: 500;
+			}
+
+			.file-path {
+				flex: 1;
+				background: transparent;
+				border: none;
+				color: var(--text);
+				font-size: 13px;
+				outline: none;
+				min-width: 0;
+			}
+
+			.file-path::placeholder {
+				color: var(--text-muted);
+			}
+
+			/* Buttons */
+			.btn {
+				display: inline-flex;
+				align-items: center;
+				justify-content: center;
+				gap: 4px;
+				height: 30px;
+				padding: 0 12px;
+				border: 1px solid var(--border);
+				border-radius: 6px;
+				background: var(--bg-elevated);
+				color: var(--text-secondary);
+				font-size: 12px;
+				cursor: pointer;
+				white-space: nowrap;
+				transition: all var(--transition);
+				user-select: none;
+			}
+
+			.btn:hover {
+				background: var(--bg-hover);
+				color: var(--text);
+				border-color: var(--text-muted);
+			}
+
+			.btn-icon {
+				width: 30px;
+				padding: 0;
+				font-size: 14px;
+			}
+
+			.btn-primary {
+				background: var(--primary);
+				border-color: var(--primary);
+				color: #fff;
+				font-weight: 500;
+			}
+
+			.btn-primary:hover {
+				background: var(--primary-hover);
+				border-color: var(--primary-hover);
+				color: #fff;
+			}
+
+			.btn-ghost {
+				border-color: transparent;
+				background: transparent;
+			}
+
+			.btn-ghost:hover {
+				background: var(--bg-hover);
+			}
+
+			/* File label styled as button */
+			.file-label {
+				display: inline-flex;
+				align-items: center;
+				justify-content: center;
+				height: 30px;
+				padding: 0 12px;
+				border: 1px solid transparent;
+				border-radius: 6px;
+				background: transparent;
+				color: var(--text-secondary);
+				font-size: 12px;
+				cursor: pointer;
+				white-space: nowrap;
+				transition: all var(--transition);
+				user-select: none;
+			}
+
+			.file-label:hover {
+				background: var(--bg-hover);
+				color: var(--text);
+			}
+
+			.file-input-hidden {
+				position: absolute;
+				width: 0;
+				height: 0;
+				opacity: 0;
+				pointer-events: none;
+			}
+
+			/* Action bar */
+			.action-bar {
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				flex-shrink: 0;
+			}
+
+			.action-bar-left {
+				display: flex;
+				align-items: center;
+				gap: 8px;
+			}
+
+			.action-bar-right {
+				display: flex;
+				align-items: center;
+				gap: 8px;
+			}
+
+			.search-input {
+				height: 30px;
+				width: 200px;
+				padding: 0 10px;
+				border: 1px solid var(--border-light);
+				border-radius: 6px;
+				background: var(--bg-surface);
+				color: var(--text);
+				font-size: 12px;
+				outline: none;
+				transition: border-color var(--transition);
+			}
+
+			.search-input:focus {
+				border-color: var(--primary);
+			}
+
+			.search-input::placeholder {
+				color: var(--text-muted);
+			}
+
+			.filter-select {
+				height: 30px;
+				padding: 0 8px;
+				border: 1px solid var(--border-light);
+				border-radius: 6px;
+				background: var(--bg-surface);
+				color: var(--text);
+				font-size: 12px;
+				outline: none;
+				cursor: pointer;
+			}
+
+			/* Panels */
+			.panels-container {
+				display: flex;
+				flex: 1;
+				gap: 2px;
+				overflow: hidden;
+				border-radius: var(--radius-lg);
+				border: 1px solid var(--border-light);
+			}
+
+			.panel {
+				flex: 1;
+				position: relative;
+				overflow: hidden;
+				display: flex;
+				flex-direction: column;
+				background: var(--bg-surface);
+			}
+
+			.panel-divider {
+				width: 3px;
+				background: var(--border);
+				cursor: col-resize;
+				flex-shrink: 0;
+				transition: background var(--transition);
+			}
+
+			.panel-divider:hover {
+				background: var(--primary);
+			}
+
+			/* Drop zone */
+			.drop-zone {
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				justify-content: center;
+				height: 100%;
+				padding: 40px;
+				transition: all var(--transition);
+			}
+
+			.drop-zone.drag-over {
+				background: var(--primary-light);
+			}
+
+			.drop-zone.drag-over .drop-zone-icon {
+				color: var(--primary);
+				transform: scale(1.1);
+			}
+
+			.drop-zone.drag-reject {
+				background: var(--danger-bg);
+			}
+
+			.drop-zone-icon {
+				width: 48px;
+				height: 48px;
+				margin-bottom: 16px;
+				color: var(--text-muted);
+				transition: all var(--transition);
+			}
+
+			.drop-zone-title {
+				font-size: 14px;
+				color: var(--text-secondary);
+				margin-bottom: 8px;
+			}
+
+			.drop-zone-sub {
+				font-size: 12px;
+				color: var(--text-muted);
+			}
+
+			.drop-zone-label {
+				display: inline-flex;
+				align-items: center;
+				justify-content: center;
+				margin-top: 16px;
+				height: 34px;
+				padding: 0 20px;
+				border: 1px dashed var(--border);
+				border-radius: 6px;
+				background: transparent;
+				color: var(--primary);
+				font-size: 13px;
+				cursor: pointer;
+				transition: all var(--transition);
+			}
+
+			.drop-zone-label:hover {
+				border-color: var(--primary);
+				background: var(--primary-light);
+			}
+
+			/* Table */
+			.table-container {
+				flex: 1;
+				overflow: auto;
+				position: relative;
+			}
+
+			.table-container::-webkit-scrollbar {
+				width: 6px;
+				height: 6px;
+			}
+
+			.table-container::-webkit-scrollbar-track {
+				background: transparent;
+			}
+
+			.table-container::-webkit-scrollbar-thumb {
+				background: var(--border);
+				border-radius: 3px;
+			}
+
+			.table-container::-webkit-scrollbar-thumb:hover {
+				background: var(--text-muted);
+			}
+
+			.bom-table {
+				width: 100%;
+				border-collapse: collapse;
+				table-layout: fixed;
+			}
+
+			.bom-table th,
+			.bom-table td {
+				height: 34px;
+				padding: 0 10px;
+				border-bottom: 1px solid var(--border-light);
+				text-align: left;
+				white-space: nowrap;
+				overflow: hidden;
+				text-overflow: ellipsis;
+				font-size: 12px;
+			}
+
+			.bom-table th {
+				height: 36px;
+				background: var(--bg-elevated);
+				font-weight: 500;
+				color: var(--text-secondary);
+				position: sticky;
+				top: 0;
+				z-index: 1;
+				cursor: pointer;
+				user-select: none;
+				text-transform: uppercase;
+				font-size: 11px;
+				letter-spacing: 0.3px;
+			}
+
+			.bom-table th:hover {
+				color: var(--text);
+			}
+
+			.bom-table tr:hover td {
+				background: var(--bg-hover);
+			}
+
+			.row-changed td.cell-changed {
+				background: var(--info-bg);
+				color: var(--info);
+				font-weight: 500;
+			}
+
+			.row-added td {
+				background: var(--warning-bg);
+			}
+
+			.row-removed td {
+				background: var(--danger-bg);
+			}
+
+			.row-highlight td {
+				outline: 1px solid var(--primary);
+				outline-offset: -1px;
+			}
+
+			.btn-detail {
+				height: 22px;
+				padding: 0 8px;
+				font-size: 11px;
+				border: 1px solid var(--border);
+				border-radius: 4px;
+				background: transparent;
+				color: var(--text-secondary);
+				cursor: pointer;
+				transition: all var(--transition);
+			}
+
+			.btn-detail:hover {
+				border-color: var(--primary);
+				color: var(--primary);
+			}
+
+			/* Summary bar */
+			.summary-bar {
+				display: flex;
+				align-items: center;
+				gap: 12px;
+				flex-shrink: 0;
+			}
+
+			.summary-text {
+				flex: 1;
+				color: var(--text-muted);
+				font-size: 12px;
+			}
+
+			.summary-badges {
+				display: flex;
+				gap: 8px;
+			}
+
+			.badge {
+				display: inline-flex;
+				align-items: center;
+				gap: 4px;
+				padding: 4px 10px;
+				border-radius: 12px;
+				font-size: 12px;
+				font-weight: 500;
+				cursor: pointer;
+				transition: opacity var(--transition);
+			}
+
+			.badge:hover { opacity: 0.8; }
+			.badge-same { background: var(--success-bg); color: var(--success); }
+			.badge-diff { background: var(--info-bg); color: var(--info); }
+			.badge-added { background: var(--warning-bg); color: var(--warning); }
+			.badge-removed { background: var(--danger-bg); color: var(--danger); }
+
+			/* Dialog */
+			.dialog-overlay {
+				position: fixed;
+				inset: 0;
+				background: rgba(0, 0, 0, 0.6);
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				z-index: 1000;
+				backdrop-filter: blur(2px);
+			}
+
+			.dialog {
+				background: var(--bg-surface);
+				border: 1px solid var(--border);
+				border-radius: var(--radius-lg);
+				box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+				max-width: 640px;
+				width: 90%;
+				max-height: 80vh;
+				overflow: auto;
+				padding: 24px;
+				position: relative;
+			}
+
+			.dialog-title {
+				font-size: 15px;
+				font-weight: 600;
+				margin-bottom: 16px;
+				color: var(--text);
+			}
+
+			.dialog-close {
+				position: absolute;
+				top: 16px;
+				right: 16px;
+				width: 28px;
+				height: 28px;
+				border: none;
+				border-radius: 6px;
+				background: transparent;
+				font-size: 18px;
+				cursor: pointer;
+				color: var(--text-muted);
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				transition: all var(--transition);
+			}
+
+			.dialog-close:hover {
+				background: var(--bg-hover);
+				color: var(--text);
+			}
+
+			/* Toast */
+			.toast {
+				position: fixed;
+				top: 20px;
+				left: 50%;
+				transform: translateX(-50%);
+				padding: 10px 20px;
+				border-radius: var(--radius);
+				font-size: 13px;
+				z-index: 2000;
+				animation: toast-in 0.3s ease;
+				box-shadow: var(--shadow);
+			}
+
+			.toast-error { background: var(--danger-bg); color: var(--danger); border: 1px solid rgba(248,113,113,0.2); }
+			.toast-success { background: var(--success-bg); color: var(--success); border: 1px solid rgba(74,222,128,0.2); }
+			.toast-warning { background: var(--warning-bg); color: var(--warning); border: 1px solid rgba(251,191,36,0.2); }
+
+			@keyframes toast-in {
+				from { opacity: 0; transform: translateX(-50%) translateY(-10px); }
+				to { opacity: 1; transform: translateX(-50%) translateY(0); }
+			}
+
+			/* Panel label */
+			.panel-label {
+				position: absolute;
+				top: 8px;
+				left: 12px;
+				font-size: 11px;
+				font-weight: 500;
+				color: var(--text-muted);
+				text-transform: uppercase;
+				letter-spacing: 0.5px;
+				z-index: 2;
+				background: var(--bg-surface);
+				padding: 2px 6px;
+				border-radius: 4px;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="app">
+			<div class="file-row">
+				<div class="file-group">
+					<span class="file-group-label" data-i18n="oldFile">旧文件</span>
+					<input type="text" id="old-file-path" class="file-path" readonly placeholder="拖拽或选择旧版 BOM..." />
+					<button id="old-file-clear" class="btn btn-ghost btn-icon" title="清空">&times;</button>
+				</div>
+				<div class="file-group">
+					<span class="file-group-label" data-i18n="newFile">新文件</span>
+					<input type="text" id="new-file-path" class="file-path" readonly placeholder="拖拽或选择新版 BOM..." />
+					<button id="new-file-clear" class="btn btn-ghost btn-icon" title="清空">&times;</button>
+				</div>
+			</div>
+
+			<div class="action-bar">
+				<div class="action-bar-left">
+					<input type="text" id="search-input" class="search-input" placeholder="搜索位号..." />
+					<button id="btn-prev-diff" class="btn btn-icon" title="上一处差异">&#9650;</button>
+					<button id="btn-next-diff" class="btn btn-icon" title="下一处差异">&#9660;</button>
+					<select id="filter-select" class="filter-select">
+						<option value="all">全部</option>
+						<option value="diff">仅差异</option>
+						<option value="added">仅新增</option>
+						<option value="removed">仅缺失</option>
+						<option value="same">仅相同</option>
+					</select>
+				</div>
+				<div class="action-bar-right">
+					<button id="btn-lang" class="btn btn-ghost" title="切换语言">中/EN</button>
+					<button id="btn-export" class="btn" style="display:none;">导出报告</button>
+					<button id="btn-compare" class="btn btn-primary">执行 BOM 比对</button>
+				</div>
+			</div>
+
+			<div class="panels-container">
+				<div class="panel panel-left" id="panel-left">
+					<span class="panel-label">OLD</span>
+					<div class="drop-zone" id="drop-zone-left">
+						<svg class="drop-zone-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+							<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+							<polyline points="14 2 14 8 20 8"></polyline>
+							<line x1="12" y1="18" x2="12" y2="12"></line>
+							<line x1="9" y1="15" x2="12" y2="12"></line>
+							<line x1="15" y1="15" x2="12" y2="12"></line>
+						</svg>
+						<p class="drop-zone-title">旧版 BOM 文件</p>
+						<p class="drop-zone-sub">支持 CSV / TXT / XLS / XLSX</p>
+						<label for="file-input-old" class="drop-zone-label">点击选择文件</label>
+					</div>
+					<div class="table-container" id="table-left" style="display:none;"></div>
+				</div>
+
+				<div class="panel-divider" id="panel-divider"></div>
+
+				<div class="panel panel-right" id="panel-right">
+					<span class="panel-label">NEW</span>
+					<div class="drop-zone" id="drop-zone-right">
+						<svg class="drop-zone-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+							<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+							<polyline points="14 2 14 8 20 8"></polyline>
+							<line x1="12" y1="18" x2="12" y2="12"></line>
+							<line x1="9" y1="15" x2="12" y2="12"></line>
+							<line x1="15" y1="15" x2="12" y2="12"></line>
+						</svg>
+						<p class="drop-zone-title">新版 BOM 文件</p>
+						<p class="drop-zone-sub">支持 CSV / TXT / XLS / XLSX</p>
+						<label for="file-input-new" class="drop-zone-label">点击选择文件</label>
+					</div>
+					<div class="table-container" id="table-right" style="display:none;"></div>
+				</div>
+			</div>
+
+			<div class="summary-bar" id="summary-bar">
+				<span class="summary-text" id="summary-text">请加载两侧 BOM 文件后执行对比</span>
+				<div class="summary-badges" id="summary-badges"></div>
+			</div>
+		</div>
+
+		<!-- 静态file input，通过label原生触发，是iframe中唯一可靠的方式 -->
+		<input type="file" id="file-input-old" accept=".csv,.txt,.xls,.xlsx" style="display:none;" />
+		<input type="file" id="file-input-new" accept=".csv,.txt,.xls,.xlsx" style="display:none;" />
+
+		<script>
+			// Workaround for EasyEDA bug: large iframe scripts (>~458KB) get loaded
+			// as blob URLs whose content is the literal string "undefined".
+			// We bypass it by reading bundle.js directly from the IndexedDB
+			// extensionsObjectStorage where EasyEDA stores extension files.
+			(async function loadBundle() {
+				try {
+					const dbs = await indexedDB.databases();
+					const userDb = dbs.find(function (d) { return d.name && d.name.indexOf('User_') === 0; });
+					if (!userDb) throw new Error('user IndexedDB not found');
+					const db = await new Promise(function (res, rej) {
+						const r = indexedDB.open(userDb.name);
+						r.onsuccess = function () { res(r.result); };
+						r.onerror = function () { rej(r.error); };
+					});
+					if (!db.objectStoreNames.contains('extensionsObjectStorage')) {
+						db.close();
+						throw new Error('extensionsObjectStorage not found');
+					}
+					const tx = db.transaction(['extensionsObjectStorage'], 'readonly');
+					const store = tx.objectStore('extensionsObjectStorage');
+					const keys = await new Promise(function (res, rej) {
+						const r = store.getAllKeys();
+						r.onsuccess = function () { res(r.result); };
+						r.onerror = function () { rej(r.error); };
+					});
+					const key = keys.find(function (k) { return String(k).endsWith('|iframe/bundle.js'); });
+					if (!key) {
+						db.close();
+						throw new Error('iframe/bundle.js entry not found in IndexedDB');
+					}
+					const entry = await new Promise(function (res, rej) {
+						const r = store.get(key);
+						r.onsuccess = function () { res(r.result); };
+						r.onerror = function () { rej(r.error); };
+					});
+					db.close();
+					if (!entry || !entry.source) throw new Error('bundle.js source missing');
+					const text = await entry.source.text();
+					const blob = new Blob([text], { type: 'text/javascript' });
+					const url = URL.createObjectURL(blob);
+					const script = document.createElement('script');
+					script.src = url;
+					script.onload = function () { URL.revokeObjectURL(url); };
+					document.body.appendChild(script);
+				} catch (err) {
+					console.error('[BOM Compare] Failed to load bundle.js from IndexedDB:', err);
+					document.body.innerHTML += '<div style="color:#f87171;padding:20px;">Failed to load bundle.js: ' + (err && err.message) + '</div>';
+				}
+			})();
+		</script>
+	</body>
+</html>

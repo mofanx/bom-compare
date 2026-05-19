@@ -1,0 +1,8 @@
+Designator	Quantity	Value	Footprint	Manufacturer	Manufacturer Part Number	Supplier	Supplier Part Number	Description
+C1	1	10uF	C0603	Samsung	CL10A106KP8NNNC	Digi-Key	1276-1784-1-ND	Capacitor 10uF 16V X5R
+C2,C3	2	100nF	C0603	Yageo	CC0603KRX7R7BB104	Digi-Key	311-1088-1-ND	Capacitor 100nF 50V X7R
+R1,R2,R3	3	4.7k	R0603	Yageo	RC0603FR-074K7L	Digi-Key	311-4.70KHRCT-ND	Resistor 4.7k 1%
+R4,R5	2	10k	R0603	Yageo	RC0603FR-0710KL	Digi-Key	311-10.0KHRCT-ND	Resistor 10k 1%
+U1	1	STM32F103C8T6	LQFP-48	STMicroelectronics	STM32F103C8T6	Digi-Key	497-13945-ND	MCU ARM Cortex-M3 64KB
+D1	1	LED_RED	LED0603	Everlight	19-217/R6C-AL1M2VY/3T	Digi-Key	732-4962-1-ND	LED Red 0603
+J1	1	USB_MICRO_B	USB-MICRO-B	Amphenol	10118193-0001LF	Digi-Key	609-4616-2-ND	USB Micro-B Connector
