@@ -35,8 +35,10 @@ function handleMouseDown(e: MouseEvent): void {
 }
 
 export function addResizeHandles(table: HTMLTableElement): void {
-	const headers = table.querySelectorAll('th[data-field]');
+	const headers = table.querySelectorAll('th');
 	headers.forEach(th => {
+		if (th.querySelector('.column-resize-handle')) return;
+
 		const resizeHandle = document.createElement('div');
 		resizeHandle.className = 'column-resize-handle';
 		(th as HTMLElement).style.position = 'relative';
