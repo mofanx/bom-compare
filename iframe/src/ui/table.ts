@@ -51,7 +51,26 @@ export function renderTable(container: HTMLElement, bomFile: BomFile, side: 'old
 }
 
 function updateColumnMapping(columnIndex: number, targetField: string, bomFile: BomFile, side: 'old' | 'new'): void {
+	const prevField = bomFile.columnMappings[columnIndex].targetField;
 	bomFile.columnMappings[columnIndex].targetField = targetField as any;
+
+	// 同步更新 rows 中对应字段的值（rawRows 保有原始数据）
+	if (targetField !== 'ignore') {
+		// 新字段从 rawRows 写入 rows
+		for (let i = 0; i < bomFile.rows.length; i++) {
+			const raw = bomFile.rawRows[i]?.[columnIndex] ?? '';
+			(bomFile.rows[i] as any)[targetField] = raw;
+		}
+	}
+	if (prevField !== 'ignore' && prevField !== targetField) {
+		// 旧字段从其他列重新计算（找是否还有其他列映射到该字段）
+		const stillMapped = bomFile.columnMappings.some((m, idx) => idx !== columnIndex && m.targetField === prevField);
+		if (!stillMapped) {
+			for (let i = 0; i < bomFile.rows.length; i++) {
+				(bomFile.rows[i] as any)[prevField] = '';
+			}
+		}
+	}
 
 	if (side === 'old') {
 		state.oldFile = bomFile;
@@ -60,10 +79,7 @@ function updateColumnMapping(columnIndex: number, targetField: string, bomFile: 
 	}
 
 	if (state.diffResult) {
-		const { compare } = require('../core/comparator');
-		const result = compare(state.oldFile, state.newFile);
-		state.diffResult = result;
-		renderDiffResult();
+		document.dispatchEvent(new CustomEvent('bom:recompare'));
 	} else {
 		const tableId = side === 'old' ? 'table-left' : 'table-right';
 		const container = document.getElementById(tableId)!;

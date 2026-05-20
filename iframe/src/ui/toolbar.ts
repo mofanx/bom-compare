@@ -51,6 +51,14 @@ export function initToolbar(): void {
 		state.searchKeyword = searchInput.value;
 		if (state.diffResult) renderDiffResult();
 	});
+
+	document.addEventListener('bom:recompare', () => {
+		if (state.oldFile && state.newFile) {
+			const result = compare(state.oldFile, state.newFile);
+			state.diffResult = result;
+			renderDiffResult();
+		}
+	});
 }
 
 function clearPanel(side: 'old' | 'new'): void {
@@ -79,6 +87,7 @@ function clearPanel(side: 'old' | 'new'): void {
 }
 
 async function executeCompare(): Promise<void> {
+	commitEditing();
 	if (!state.oldFile && !state.newFile) {
 		showToast(t('needBothFiles'), 'warning');
 		return;

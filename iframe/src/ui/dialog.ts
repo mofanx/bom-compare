@@ -168,7 +168,7 @@ export function showRowDetailDialog(rowDiff: RowDiff): void {
 			newVal: rowDiff.type === 'added' ? String(row?.[col.field] || '') : '',
 		}));
 
-		const summaryText = `概述：${fileLabel}独有数据行 [${typeLabel}]，位号 = ${designator}，行号 = ${rowNum}`;
+		const summaryText = `概述：${fileLabel}独有数据行 ，位号 = ${designator}，行号 = ${rowNum}`;
 		_showCompareDialog(`新旧Bom行差异详情`, rowDiff.type === 'removed' ? `旧文件第${rowNum}行` : '', rowDiff.type === 'added' ? `新文件第${rowNum}行` : '', columns, summaryText, typeLabel);
 	} else {
 		const diffFieldSet = new Set(rowDiff.cellDiffs.map(d => d.field));

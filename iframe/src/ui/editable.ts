@@ -80,18 +80,34 @@ function stopEditing(save: boolean = true): void {
 					// 原始表头行编辑：更新 rawHeaders + 触发列名重新匹配
 					const oldValue = bomFile.rawHeaders[cellIndex];
 					if (newValue !== oldValue) {
+						const prevMapping = bomFile.columnMappings[cellIndex];
 						bomFile.rawHeaders[cellIndex] = newValue;
-						bomFile.columnMappings[cellIndex] = mapSingleColumn(newValue);
+						const newMapping = mapSingleColumn(newValue);
+						bomFile.columnMappings[cellIndex] = newMapping;
 						td.title = newValue;
+
+						// 同步更新 rows 中对应字段（rawRows 保有原始数据）
+						const prevField = String(prevMapping.targetField);
+						const nextField = String(newMapping.targetField);
+						if (nextField !== 'ignore') {
+							for (let i = 0; i < bomFile.rows.length; i++) {
+								(bomFile.rows[i] as any)[nextField] = bomFile.rawRows[i]?.[cellIndex] ?? '';
+							}
+						}
+						if (prevField !== 'ignore' && prevField !== nextField) {
+							const stillMapped = bomFile.columnMappings.some((m, idx) => idx !== cellIndex && String(m.targetField) === prevField);
+							if (!stillMapped) {
+								for (let i = 0; i < bomFile.rows.length; i++) {
+									(bomFile.rows[i] as any)[prevField] = '';
+								}
+							}
+						}
 
 						if (side === 'old') state.oldFile = bomFile;
 						else state.newFile = bomFile;
 
 						if (state.diffResult) {
-							const { compare } = require('../core/comparator');
-							const result = compare(state.oldFile, state.newFile);
-							state.diffResult = result;
-							renderDiffResult();
+							document.dispatchEvent(new CustomEvent('bom:recompare'));
 						} else {
 							const tableId = side === 'old' ? 'table-left' : 'table-right';
 							const container = document.getElementById(tableId)!;
@@ -102,27 +118,19 @@ function stopEditing(save: boolean = true): void {
 				} else {
 					// 数据行编辑：更新 rows 和 rawRows
 					const mapping = bomFile.columnMappings[cellIndex];
-					const field = mapping.targetField as keyof BomRow;
 
+					// ignore 列不参与对比，仅更新 rawRows 显示，不写入 rows
 					const rowIndex = parseInt(tr.dataset.rowIndex || '-1', 10);
-					if (rowIndex >= 0 && rowIndex < bomFile.rows.length) {
-						bomFile.rows[rowIndex][field] = newValue;
+					if (rowIndex >= 0) {
 						if (rowIndex < bomFile.rawRows.length) {
 							bomFile.rawRows[rowIndex][cellIndex] = newValue;
 						}
-					}
+						if (mapping.targetField !== 'ignore' && rowIndex < bomFile.rows.length) {
+							const field = mapping.targetField as keyof BomRow;
+							bomFile.rows[rowIndex][field] = newValue;
 
-					// Also update diffResult if it exists
-					if (state.diffResult) {
-						const filteredIndex = parseInt(tr.dataset.index || '-1', 10);
-						if (filteredIndex >= 0) {
-							const filteredRows = getFilteredRows();
-							const rowDiff = filteredRows[filteredIndex];
-							if (rowDiff) {
-								const diffRow = side === 'old' ? rowDiff.oldRow : rowDiff.newRow;
-								if (diffRow) {
-									diffRow[field] = newValue;
-								}
+							if (state.diffResult) {
+								document.dispatchEvent(new CustomEvent('bom:recompare'));
 							}
 						}
 					}
@@ -136,42 +144,6 @@ function stopEditing(save: boolean = true): void {
 	editingCell = null;
 }
 
-function getFilteredRows() {
-	if (!state.diffResult) return [];
-
-	let rows = state.diffResult.rows;
-
-	if (state.filter === 'diff') {
-		rows = rows.filter(r => r.type === 'changed');
-	} else if (state.filter === 'added') {
-		rows = rows.filter(r => r.type === 'added');
-	} else if (state.filter === 'removed') {
-		rows = rows.filter(r => r.type === 'removed');
-	} else if (state.filter === 'same') {
-		rows = rows.filter(r => r.type === 'same');
-	}
-
-	if (state.searchKeyword) {
-		const query = state.searchKeyword.toLowerCase();
-		rows = rows.filter(r => {
-			const row = r.oldRow || r.newRow;
-			return row?.designator?.toLowerCase().includes(query);
-		});
-	}
-
-	if (state.sortField) {
-		rows.sort((a, b) => {
-			const order = state.sortDirection === 'asc' ? 1 : -1;
-			const rowA = a.oldRow || a.newRow;
-			const rowB = b.oldRow || b.newRow;
-			const valA = rowA?.[state.sortField as keyof BomRow] || '';
-			const valB = rowB?.[state.sortField as keyof BomRow] || '';
-			return order * String(valA).localeCompare(String(valB));
-		});
-	}
-
-	return rows;
-}
 
 function handleDocumentClick(e: MouseEvent): void {
 	if (!editingCell) return;
