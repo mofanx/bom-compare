@@ -112,6 +112,83 @@ export function showColumnMappingDialog(
 	});
 }
 
+export function showHeaderDetailDialog(oldHeaders: string[], newHeaders: string[]): void {
+	closeDialog();
+
+	overlay = document.createElement('div');
+	overlay.className = 'dialog-overlay';
+
+	const dialog = document.createElement('div');
+	dialog.className = 'dialog dialog-row-detail';
+
+	const header = document.createElement('div');
+	header.className = 'dialog-header';
+	header.innerHTML = '<h2>表头差异对比</h2><button class="dialog-close" title="关闭">×</button>';
+	dialog.appendChild(header);
+
+	const body = document.createElement('div');
+	body.className = 'dialog-body';
+
+	const maxLen = Math.max(oldHeaders.length, newHeaders.length);
+	let hasDiff = false;
+
+	const table = document.createElement('table');
+	table.className = 'detail-table';
+
+	const thead = document.createElement('thead');
+	const headerRow = document.createElement('tr');
+	headerRow.innerHTML = '<th>列序号</th><th>旧文件表头</th><th>新文件表头</th>';
+	thead.appendChild(headerRow);
+	table.appendChild(thead);
+
+	const tbody = document.createElement('tbody');
+	for (let i = 0; i < maxLen; i++) {
+		const oldVal = oldHeaders[i] || '';
+		const newVal = newHeaders[i] || '';
+		const isDiff = oldVal !== newVal;
+		if (isDiff) hasDiff = true;
+
+		const tr = document.createElement('tr');
+		if (isDiff) tr.className = 'cell-changed';
+
+		tr.innerHTML = `
+			<td>${String(i + 1)}</td>
+			<td class="old-value">${oldVal || '-'}</td>
+			<td class="new-value">${newVal || '-'}</td>
+		`;
+		tbody.appendChild(tr);
+	}
+	table.appendChild(tbody);
+	body.appendChild(table);
+
+	if (!hasDiff) {
+		const noDiff = document.createElement('div');
+		noDiff.className = 'no-diff';
+		noDiff.textContent = '表头完全一致，无差异';
+		body.appendChild(noDiff);
+	}
+
+	dialog.appendChild(body);
+
+	const footer = document.createElement('div');
+	footer.className = 'dialog-footer';
+	footer.innerHTML = '<button class="btn btn-secondary dialog-close-btn">关闭</button>';
+	dialog.appendChild(footer);
+
+	overlay.appendChild(dialog);
+	document.body.appendChild(overlay);
+
+	const closeBtn = header.querySelector('.dialog-close') as HTMLButtonElement;
+	const footerCloseBtn = footer.querySelector('.dialog-close-btn') as HTMLButtonElement;
+
+	closeBtn.addEventListener('click', closeDialog);
+	footerCloseBtn.addEventListener('click', closeDialog);
+
+	overlay.addEventListener('click', (e) => {
+		if (e.target === overlay) closeDialog();
+	});
+}
+
 export function showRowDetailDialog(rowDiff: RowDiff): void {
 	closeDialog();
 
