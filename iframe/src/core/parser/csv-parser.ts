@@ -54,26 +54,28 @@ export function parseCSV(text: string, fileName: string): BomFile {
 	const lines = text.split(/\r?\n/).filter(line => line.trim() !== '');
 
 	if (lines.length === 0) {
-		return { fileName, rows: [], headers: [], rawHeaders: [] };
+		return { fileName, rows: [], headers: [], rawHeaders: [], rawRows: [], columnMappings: [] };
 	}
 
 	const headerLineIndex = findHeaderLine(lines);
 	const rawHeaders = parseCSVLine(lines[headerLineIndex], separator);
 	const columnMappings = mapColumns(rawHeaders);
-	const headers = columnMappings.map(m => m.targetField);
+	const headers = columnMappings.map(m => String(m.targetField));
 
 	const rows: BomRow[] = [];
+	const rawRows: string[][] = [];
 	for (let i = headerLineIndex + 1; i < lines.length; i++) {
 		const fields = parseCSVLine(lines[i], separator);
 		if (fields.every(f => f === '')) continue;
 
-		const row = createBomRow(fields, columnMappings, i);
+		const row = createBomRow(fields, columnMappings, rows.length);
 		if (row.designator) {
 			rows.push(row);
+			rawRows.push(fields);
 		}
 	}
 
-	return { fileName, rows, headers, rawHeaders };
+	return { fileName, rows, headers, rawHeaders, rawRows, columnMappings };
 }
 
 function findHeaderLine(lines: string[]): number {
@@ -94,7 +96,7 @@ function createBomRow(fields: string[], mappings: ColumnMapping[], rowIndex: num
 		footprint: '',
 		quantity: '',
 		manufacturer: '',
-		lcscPart: '',
+		partNumber: '',
 		value: '',
 		description: '',
 	};

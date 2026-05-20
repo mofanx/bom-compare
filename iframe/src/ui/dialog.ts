@@ -56,7 +56,7 @@ export function showColumnMappingDialog(
 			<option value="footprint" ${currentMapping?.targetField === 'footprint' ? 'selected' : ''}>封装</option>
 			<option value="quantity" ${currentMapping?.targetField === 'quantity' ? 'selected' : ''}>数量</option>
 			<option value="manufacturer" ${currentMapping?.targetField === 'manufacturer' ? 'selected' : ''}>制造商</option>
-			<option value="lcscPart" ${currentMapping?.targetField === 'lcscPart' ? 'selected' : ''}>LCSC Part</option>
+			<option value="partNumber" ${currentMapping?.targetField === 'partNumber' ? 'selected' : ''}>Part Number</option>
 			<option value="value" ${currentMapping?.targetField === 'value' ? 'selected' : ''}>Value</option>
 			<option value="description" ${currentMapping?.targetField === 'description' ? 'selected' : ''}>Description</option>
 		`;

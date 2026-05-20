@@ -7,31 +7,33 @@ export function parseExcel(data: ArrayBuffer, fileName: string, sheetName?: stri
 	const sheet = workbook.Sheets[sheetName || workbook.SheetNames[0]];
 
 	if (!sheet) {
-		return { fileName, rows: [], headers: [], rawHeaders: [] };
+		return { fileName, rows: [], headers: [], rawHeaders: [], rawRows: [], columnMappings: [] };
 	}
 
 	const jsonData: string[][] = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' });
 	const lines = jsonData.filter(row => row.some(cell => String(cell).trim() !== ''));
 
 	if (lines.length === 0) {
-		return { fileName, rows: [], headers: [], rawHeaders: [] };
+		return { fileName, rows: [], headers: [], rawHeaders: [], rawRows: [], columnMappings: [] };
 	}
 
 	const headerLineIndex = findHeaderLine(lines);
 	const rawHeaders = lines[headerLineIndex].map(h => String(h).trim());
 	const columnMappings = mapColumns(rawHeaders);
-	const headers = columnMappings.map(m => m.targetField);
+	const headers = columnMappings.map(m => String(m.targetField));
 
 	const rows: BomRow[] = [];
+	const rawRows: string[][] = [];
 	for (let i = headerLineIndex + 1; i < lines.length; i++) {
 		const fields = lines[i].map(cell => String(cell).trim());
-		const row = createBomRow(fields, columnMappings, i);
+		const row = createBomRow(fields, columnMappings, rows.length);
 		if (row.designator) {
 			rows.push(row);
+			rawRows.push(fields);
 		}
 	}
 
-	return { fileName, rows, headers, rawHeaders };
+	return { fileName, rows, headers, rawHeaders, rawRows, columnMappings };
 }
 
 export function getSheetNames(data: ArrayBuffer): string[] {
@@ -57,7 +59,7 @@ function createBomRow(fields: string[], mappings: ColumnMapping[], rowIndex: num
 		footprint: '',
 		quantity: '',
 		manufacturer: '',
-		lcscPart: '',
+		partNumber: '',
 		value: '',
 		description: '',
 	};

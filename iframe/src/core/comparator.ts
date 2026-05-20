@@ -1,9 +1,16 @@
 import type { BomFile, BomRow, DiffResult, RowDiff, CellDiff, DiffSummary } from '../types';
 import { STANDARD_COLUMNS } from '../types';
 
-const COMPARE_FIELDS: Array<keyof BomRow> = ['footprint', 'quantity', 'manufacturer', 'lcscPart', 'value', 'description'];
+const COMPARE_FIELDS: Array<keyof BomRow> = ['footprint', 'quantity', 'manufacturer', 'partNumber', 'value', 'description'];
 
 export function compare(oldFile: BomFile, newFile: BomFile): DiffResult {
+	// 获取用户手动调整后的映射字段
+	const oldMappedFields = getMappedFields(oldFile.columnMappings);
+	const newMappedFields = getMappedFields(newFile.columnMappings);
+
+	// 使用交集字段进行对比
+	const compareFields = Array.from(new Set([...oldMappedFields, ...newMappedFields])).filter(f => f !== 'designator');
+
 	const oldMap = buildDesignatorMap(oldFile.rows);
 	const newMap = buildDesignatorMap(newFile.rows);
 
@@ -27,7 +34,7 @@ export function compare(oldFile: BomFile, newFile: BomFile): DiffResult {
 				} else if (!newRow) {
 					rows.push({ type: 'removed', oldRow, newRow: null, cellDiffs: [] });
 				} else {
-					const cellDiffs = compareRows(oldRow, newRow);
+					const cellDiffs = compareRows(oldRow, newRow, compareFields);
 					rows.push({
 						type: cellDiffs.length > 0 ? 'changed' : 'same',
 						oldRow,
@@ -58,7 +65,7 @@ export function compare(oldFile: BomFile, newFile: BomFile): DiffResult {
 		removed: rows.filter(r => r.type === 'removed').length,
 	};
 
-	return { rows, summary, comparedColumns: COMPARE_FIELDS.map(f => f) };
+	return { rows, summary, comparedColumns: compareFields };
 }
 
 function buildDesignatorMap(rows: BomRow[]): Map<string, BomRow[]> {
@@ -73,9 +80,9 @@ function buildDesignatorMap(rows: BomRow[]): Map<string, BomRow[]> {
 	return map;
 }
 
-function compareRows(oldRow: BomRow, newRow: BomRow): CellDiff[] {
+function compareRows(oldRow: BomRow, newRow: BomRow, compareFields: Array<keyof BomRow>): CellDiff[] {
 	const diffs: CellDiff[] = [];
-	for (const field of COMPARE_FIELDS) {
+	for (const field of compareFields) {
 		const oldVal = String(oldRow[field] || '').trim();
 		const newVal = String(newRow[field] || '').trim();
 		if (oldVal !== newVal) {
@@ -83,6 +90,12 @@ function compareRows(oldRow: BomRow, newRow: BomRow): CellDiff[] {
 		}
 	}
 	return diffs;
+}
+
+function getMappedFields(columnMappings: any[]): Array<keyof BomRow> {
+	return columnMappings
+		.filter(m => m.targetField !== 'ignore')
+		.map(m => m.targetField as keyof BomRow);
 }
 
 function sortRows(a: RowDiff, b: RowDiff): number {

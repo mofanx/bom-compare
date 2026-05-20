@@ -4,7 +4,7 @@ export interface BomRow {
 	footprint: string;
 	quantity: string;
 	manufacturer: string;
-	lcscPart: string;
+	partNumber: string;
 	value: string;
 	description: string;
 	[key: string]: string | number;
@@ -15,6 +15,8 @@ export interface BomFile {
 	rows: BomRow[];
 	headers: string[];
 	rawHeaders: string[];
+	rawRows: string[][];
+	columnMappings: ColumnMapping[];
 }
 
 export type DiffType = 'same' | 'changed' | 'added' | 'removed';
@@ -53,12 +55,22 @@ export interface ColumnMapping {
 
 export type FilterType = 'all' | 'diff' | 'added' | 'removed' | 'same';
 
-export const STANDARD_COLUMNS: Array<{ field: keyof BomRow; label: string }> = [
-	{ field: 'designator', label: '位号' },
-	{ field: 'footprint', label: '封装' },
-	{ field: 'quantity', label: '数量' },
-	{ field: 'manufacturer', label: '制造商' },
-	{ field: 'lcscPart', label: 'LCSC Part' },
-	{ field: 'value', label: 'Value' },
-	{ field: 'description', label: 'Description' },
+export const STANDARD_COLUMNS: Array<{ field: keyof BomRow; label: string; labelZh: string }> = [
+	{ field: 'designator', label: 'Designator', labelZh: '位号' },
+	{ field: 'footprint', label: 'Footprint', labelZh: '封装' },
+	{ field: 'quantity', label: 'Quantity', labelZh: '数量' },
+	{ field: 'manufacturer', label: 'Manufacturer', labelZh: '制造商' },
+	{ field: 'partNumber', label: 'Part Number', labelZh: '型号' },
+	{ field: 'value', label: 'Value', labelZh: '值' },
+	{ field: 'description', label: 'Description', labelZh: '描述' },
 ];
+
+export function getColumnLetter(index: number): string {
+	let letter = '';
+	let num = index;
+	while (num >= 0) {
+		letter = String.fromCharCode((num % 26) + 65) + letter;
+		num = Math.floor(num / 26) - 1;
+	}
+	return letter;
+}
