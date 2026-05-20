@@ -9,6 +9,7 @@ import { initEditableTable } from './editable';
 import { showToast } from './drop-zone';
 import { getLanguage, t } from '../utils/i18n';
 import { mapSingleColumn } from '../core/column-mapper';
+import { renderSummary } from './summary';
 
 export function renderTable(container: HTMLElement, bomFile: BomFile, side: 'old' | 'new'): void {
 	const table = document.createElement('table');
@@ -266,6 +267,7 @@ export function renderDiffResult(): void {
 	renderDiffTable(leftContainer, filteredRows, 'old');
 	renderDiffTable(rightContainer, filteredRows, 'new');
 
+	renderSummary(state.diffResult);
 	initSyncScroll();
 }
 
