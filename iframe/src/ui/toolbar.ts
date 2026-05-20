@@ -32,10 +32,15 @@ export function initToolbar(): void {
 	newClear.addEventListener('click', () => clearPanel('new'));
 
 	btnCompare.addEventListener('click', executeCompare);
-	btnExport.addEventListener('click', () => {
+	btnExport.addEventListener('click', async () => {
 		if (state.diffResult) {
-			exportReport(state.diffResult);
-			showToast(t('exportSuccess'), 'success');
+			try {
+				await exportReport(state.diffResult);
+				showToast(t('exportSuccess'), 'success');
+			} catch (error) {
+				if ((error as Error).name === 'AbortError') return;
+				showToast(t('saveError'), 'error');
+			}
 		}
 	});
 

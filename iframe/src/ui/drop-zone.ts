@@ -166,7 +166,7 @@ export async function loadFile(file: File, side: 'old' | 'new'): Promise<void> {
 		renderTable(tableContainer, bomFile, side);
 
 		hideLoading();
-		showToast(`加载成功: ${file.name}（${bomFile.rows.length} 行）`, 'success');
+		showToast(`加载成功: ${file.name}（${bomFile.rows.length + 1} 行）`, 'success');
 	} catch (err) {
 		hideLoading();
 		const errMsg = err instanceof Error ? err.message : String(err);

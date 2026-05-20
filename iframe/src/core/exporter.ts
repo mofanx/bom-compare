@@ -1,7 +1,7 @@
 import type { DiffResult, BomFile } from '../types';
 import * as XLSX from 'xlsx';
 
-export function exportReport(result: DiffResult): void {
+export async function exportReport(result: DiffResult): Promise<void> {
 	const wb = XLSX.utils.book_new();
 
 	// Sheet 1: Summary
@@ -45,7 +45,7 @@ export function exportReport(result: DiffResult): void {
 
 	const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
 	const blob = new Blob([wbout], { type: 'application/octet-stream' });
-	downloadBlob(blob, 'bom-compare-report.xlsx');
+	await downloadBlobWithPicker(blob, 'bom-compare-report.xlsx');
 }
 
 export function exportCSV(rows: Record<string, string>[], fileName: string): void {
@@ -93,10 +93,10 @@ async function downloadBlobWithPicker(blob: Blob, fileName: string): Promise<voi
 			await writable.close();
 			return;
 		} catch (err) {
-			// User cancelled or error occurred, fall back to traditional download
-			if ((err as Error).name !== 'AbortError') {
-				console.error('File picker failed, falling back to download:', err);
+			if ((err as Error).name === 'AbortError') {
+				throw err;
 			}
+			console.error('File picker failed, falling back to download:', err);
 		}
 	}
 
