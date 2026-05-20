@@ -1,4 +1,6 @@
-import type { ColumnMapping, RowDiff, CellDiff } from '../types';
+import type { ColumnMapping, BomFile, RowDiff } from '../types';
+import { STANDARD_COLUMNS } from '../types';
+import { getLanguage } from '../utils/i18n';
 
 let overlay: HTMLElement | null = null;
 
@@ -112,178 +114,206 @@ export function showColumnMappingDialog(
 	});
 }
 
-export function showHeaderDetailDialog(oldHeaders: string[], newHeaders: string[]): void {
+export function showHeaderDetailDialog(oldFile: BomFile | null, newFile: BomFile | null): void {
 	closeDialog();
 
-	overlay = document.createElement('div');
-	overlay.className = 'dialog-overlay';
+	const lang = getLanguage();
+	const oldMappings = oldFile?.columnMappings || [];
+	const newMappings = newFile?.columnMappings || [];
+	const oldHeaders = oldFile?.rawHeaders || [];
+	const newHeaders = newFile?.rawHeaders || [];
 
-	const dialog = document.createElement('div');
-	dialog.className = 'dialog dialog-row-detail';
+	// 收集两侧都有映射的预设字段（取并集）
+	const mappedFields = new Set<string>();
+	for (const m of oldMappings) { if (m.targetField !== 'ignore') mappedFields.add(String(m.targetField)); }
+	for (const m of newMappings) { if (m.targetField !== 'ignore') mappedFields.add(String(m.targetField)); }
 
-	const header = document.createElement('div');
-	header.className = 'dialog-header';
-	header.innerHTML = '<h2>表头差异对比</h2><button class="dialog-close" title="关闭">×</button>';
-	dialog.appendChild(header);
+	const columns = STANDARD_COLUMNS
+		.filter(col => mappedFields.has(String(col.field)))
+		.map(col => {
+			const fieldName = String(col.field);
+			const oldIdx = oldMappings.findIndex(m => String(m.targetField) === fieldName);
+			const newIdx = newMappings.findIndex(m => String(m.targetField) === fieldName);
+			const oldVal = oldIdx >= 0 ? (oldHeaders[oldIdx] || '') : '';
+			const newVal = newIdx >= 0 ? (newHeaders[newIdx] || '') : '';
+			return { label: lang === 'zh-Hans' ? col.labelZh : col.label, oldVal, newVal };
+		});
 
-	const body = document.createElement('div');
-	body.className = 'dialog-body';
+	const diffLabels = columns.filter(c => c.oldVal !== c.newVal).map(c => c.label);
 
-	const maxLen = Math.max(oldHeaders.length, newHeaders.length);
-	let hasDiff = false;
+	const summaryText = diffLabels.length > 0
+		? `概述：旧文件与新文件在【${diffLabels.join('、')}】列的原始表头名称存在差异`
+		: '概述：旧文件与新文件的表头名称完全一致，无差异';
 
-	const table = document.createElement('table');
-	table.className = 'detail-table';
-
-	const thead = document.createElement('thead');
-	const headerRow = document.createElement('tr');
-	headerRow.innerHTML = '<th>列序号</th><th>旧文件表头</th><th>新文件表头</th>';
-	thead.appendChild(headerRow);
-	table.appendChild(thead);
-
-	const tbody = document.createElement('tbody');
-	for (let i = 0; i < maxLen; i++) {
-		const oldVal = oldHeaders[i] || '';
-		const newVal = newHeaders[i] || '';
-		const isDiff = oldVal !== newVal;
-		if (isDiff) hasDiff = true;
-
-		const tr = document.createElement('tr');
-		if (isDiff) tr.className = 'cell-changed';
-
-		tr.innerHTML = `
-			<td>${String(i + 1)}</td>
-			<td class="old-value">${oldVal || '-'}</td>
-			<td class="new-value">${newVal || '-'}</td>
-		`;
-		tbody.appendChild(tr);
-	}
-	table.appendChild(tbody);
-	body.appendChild(table);
-
-	if (!hasDiff) {
-		const noDiff = document.createElement('div');
-		noDiff.className = 'no-diff';
-		noDiff.textContent = '表头完全一致，无差异';
-		body.appendChild(noDiff);
-	}
-
-	dialog.appendChild(body);
-
-	const footer = document.createElement('div');
-	footer.className = 'dialog-footer';
-	footer.innerHTML = '<button class="btn btn-secondary dialog-close-btn">关闭</button>';
-	dialog.appendChild(footer);
-
-	overlay.appendChild(dialog);
-	document.body.appendChild(overlay);
-
-	const closeBtn = header.querySelector('.dialog-close') as HTMLButtonElement;
-	const footerCloseBtn = footer.querySelector('.dialog-close-btn') as HTMLButtonElement;
-
-	closeBtn.addEventListener('click', closeDialog);
-	footerCloseBtn.addEventListener('click', closeDialog);
-
-	overlay.addEventListener('click', (e) => {
-		if (e.target === overlay) closeDialog();
-	});
+	_showCompareDialog('新旧Bom表头差异详情', '旧文件表头', '新文件表头', columns, summaryText);
 }
 
 export function showRowDetailDialog(rowDiff: RowDiff): void {
 	closeDialog();
 
+	const lang = getLanguage();
+	const oldRow = rowDiff.oldRow;
+	const newRow = rowDiff.newRow;
+	const designator = oldRow?.designator || newRow?.designator || '未知';
+
+	if (rowDiff.type === 'added' || rowDiff.type === 'removed') {
+		const row = rowDiff.type === 'added' ? newRow : oldRow;
+		const typeLabel = rowDiff.type === 'added' ? '新增' : '缺失';
+		const fileLabel = rowDiff.type === 'added' ? '新文件' : '旧文件';
+		const rowNum = row ? row.rowIndex + 2 : '?';
+
+		const columns = STANDARD_COLUMNS.map(col => ({
+			label: lang === 'zh-Hans' ? col.labelZh : col.label,
+			oldVal: rowDiff.type === 'removed' ? String(row?.[col.field] || '') : '',
+			newVal: rowDiff.type === 'added' ? String(row?.[col.field] || '') : '',
+		}));
+
+		const summaryText = `概述：${fileLabel}独有数据行 [${typeLabel}]，位号 = ${designator}，行号 = ${rowNum}`;
+		_showCompareDialog(`新旧Bom行差异详情`, rowDiff.type === 'removed' ? `旧文件第${rowNum}行` : '', rowDiff.type === 'added' ? `新文件第${rowNum}行` : '', columns, summaryText, typeLabel);
+	} else {
+		const diffFieldSet = new Set(rowDiff.cellDiffs.map(d => d.field));
+		const oldNum = oldRow ? oldRow.rowIndex + 2 : '?';
+		const newNum = newRow ? newRow.rowIndex + 2 : '?';
+
+		const columns = STANDARD_COLUMNS.map(col => ({
+			label: lang === 'zh-Hans' ? col.labelZh : col.label,
+			oldVal: oldRow ? String(oldRow[col.field] || '') : '',
+			newVal: newRow ? String(newRow[col.field] || '') : '',
+			isDiff: diffFieldSet.has(String(col.field)),
+		}));
+
+		const diffLabels = columns.filter(c => c.isDiff).map(c => c.label);
+		const summaryText = diffLabels.length > 0
+			? `概述：旧文件第${oldNum}行与新文件第${newNum}行有相同的位号(${designator})，但【${diffLabels.join('、')}】列的数据存在差异`
+			: `概述：旧文件第${oldNum}行与新文件第${newNum}行位号(${designator})的所有数据完全一致`;
+
+		_showCompareDialog('新旧Bom行差异详情', `旧文件第${oldNum}行`, `新文件第${newNum}行`, columns, summaryText);
+	}
+}
+
+// 内部通用横向对比弹窗
+function _showCompareDialog(
+	title: string,
+	oldLabel: string,
+	newLabel: string,
+	columns: Array<{ label: string; oldVal: string; newVal: string; isDiff?: boolean }>,
+	summaryText: string,
+	badge?: string,
+): void {
 	overlay = document.createElement('div');
 	overlay.className = 'dialog-overlay';
 
 	const dialog = document.createElement('div');
 	dialog.className = 'dialog dialog-row-detail';
+	dialog.style.cssText = 'min-width: 520px; max-width: 90vw; overflow: hidden;';
 
-	const header = document.createElement('div');
-	header.className = 'dialog-header';
-	header.innerHTML = `
-		<h2>行详情对比 - ${rowDiff.oldRow?.designator || rowDiff.newRow?.designator || '未知'}</h2>
-		<button class="dialog-close" title="关闭">×</button>
-	`;
-	dialog.appendChild(header);
+	// Header
+	const dialogHeader = document.createElement('div');
+	dialogHeader.className = 'dialog-header';
+	dialogHeader.style.cssText = 'display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; border-bottom: 1px solid var(--border); flex-shrink: 0;';
+	const h2 = document.createElement('h2');
+	h2.textContent = title;
+	h2.style.cssText = 'font-size: 13px; font-weight: 600; margin: 0; color: var(--text);';
+	const closeBtn = document.createElement('button');
+	closeBtn.className = 'dialog-close';
+	closeBtn.title = '关闭';
+	closeBtn.textContent = '×';
+	closeBtn.style.cssText = 'position: static; width: 22px; height: 22px; line-height: 22px; font-size: 16px; padding: 0; display: flex; align-items: center; justify-content: center;';
+	dialogHeader.appendChild(h2);
+	dialogHeader.appendChild(closeBtn);
+	dialog.appendChild(dialogHeader);
 
+	// Body
 	const body = document.createElement('div');
 	body.className = 'dialog-body';
+	body.style.cssText = 'padding: 16px; overflow-x: auto; overflow-y: auto; max-height: calc(80vh - 100px);';
 
-	const diffType = document.createElement('div');
-	diffType.className = 'diff-type-badge';
-	diffType.textContent = getDiffTypeLabel(rowDiff.type);
-	body.appendChild(diffType);
-
-	if (rowDiff.cellDiffs && rowDiff.cellDiffs.length > 0) {
-		const table = document.createElement('table');
-		table.className = 'detail-table';
-
-		const thead = document.createElement('thead');
-		const headerRow = document.createElement('tr');
-		headerRow.innerHTML = `
-			<th>字段</th>
-			<th>旧值</th>
-			<th>新值</th>
-		`;
-		thead.appendChild(headerRow);
-		table.appendChild(thead);
-
-		const tbody = document.createElement('tbody');
-		for (const cellDiff of rowDiff.cellDiffs) {
-			const tr = document.createElement('tr');
-			tr.innerHTML = `
-				<td>${cellDiff.field}</td>
-				<td class="old-value">${cellDiff.oldValue || '-'}</td>
-				<td class="new-value">${cellDiff.newValue || '-'}</td>
-			`;
-			tbody.appendChild(tr);
-		}
-		table.appendChild(tbody);
-		body.appendChild(table);
-	} else {
-		const noDiff = document.createElement('div');
-		noDiff.className = 'no-diff';
-		noDiff.textContent = '无字段差异';
-		body.appendChild(noDiff);
+	if (badge) {
+		const badgeEl = document.createElement('span');
+		badgeEl.textContent = badge;
+		badgeEl.style.cssText = 'display: inline-block; margin-bottom: 10px; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; background: var(--warning-bg); color: var(--warning);';
+		body.appendChild(badgeEl);
 	}
+
+	// Compare table
+	const table = document.createElement('table');
+	table.style.cssText = 'width: 100%; border-collapse: collapse; font-size: 12px; white-space: nowrap;';
+
+	// thead: column labels
+	const thead = document.createElement('thead');
+	const theadTr = document.createElement('tr');
+	const emptyTh = document.createElement('th');
+	emptyTh.style.cssText = 'padding: 6px 12px; border: 1px solid var(--border); background: var(--bg-elevated); min-width: 100px; text-align: left;';
+	theadTr.appendChild(emptyTh);
+	for (const col of columns) {
+		const th = document.createElement('th');
+		th.textContent = col.label;
+		th.style.cssText = 'padding: 6px 12px; border: 1px solid var(--border); background: var(--bg-elevated); text-align: center; font-weight: 500; color: var(--text-secondary);';
+		theadTr.appendChild(th);
+	}
+	thead.appendChild(theadTr);
+	table.appendChild(thead);
+
+	// tbody: old row + new row
+	const tbody = document.createElement('tbody');
+
+	const buildRow = (label: string, getValue: (c: typeof columns[0]) => string, isOld: boolean) => {
+		if (!label) return;
+		const tr = document.createElement('tr');
+		const labelTd = document.createElement('td');
+		labelTd.textContent = label;
+		labelTd.style.cssText = 'padding: 7px 12px; border: 1px solid var(--border); font-weight: 600; color: var(--text-secondary); white-space: nowrap; background: var(--bg-elevated);';
+		tr.appendChild(labelTd);
+
+		for (const col of columns) {
+			const val = getValue(col);
+			const isDiff = col.isDiff !== undefined ? col.isDiff : col.oldVal !== col.newVal;
+			const td = document.createElement('td');
+			td.textContent = val || '-';
+			td.style.cssText = 'padding: 7px 12px; border: 1px solid var(--border); text-align: center;';
+			if (isDiff && col.oldVal !== col.newVal) {
+				td.style.cssText += isOld
+					? 'background: rgba(248,113,113,0.15); color: #fca5a5; font-weight: 500;'
+					: 'background: rgba(96,165,250,0.15); color: #93c5fd; font-weight: 500;';
+			} else {
+				td.style.cssText += 'color: var(--text-secondary);';
+			}
+			tr.appendChild(td);
+		}
+		tbody.appendChild(tr);
+	};
+
+	buildRow(oldLabel, c => c.oldVal, true);
+	buildRow(newLabel, c => c.newVal, false);
+	table.appendChild(tbody);
+	body.appendChild(table);
+
+	// Summary
+	const summary = document.createElement('div');
+	summary.textContent = summaryText;
+	summary.style.cssText = 'margin-top: 12px; padding: 8px 12px; background: var(--bg-hover); border-radius: 4px; font-size: 12px; color: var(--text-secondary); line-height: 1.6;';
+	body.appendChild(summary);
 
 	dialog.appendChild(body);
 
+	// Footer
 	const footer = document.createElement('div');
 	footer.className = 'dialog-footer';
-	footer.innerHTML = `
-		<button class="btn btn-secondary dialog-close">关闭</button>
-	`;
+	footer.style.cssText = 'padding: 10px 16px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; flex-shrink: 0;';
+	const footerCloseBtn = document.createElement('button');
+	footerCloseBtn.className = 'btn btn-secondary';
+	footerCloseBtn.textContent = '关闭';
+	footer.appendChild(footerCloseBtn);
 	dialog.appendChild(footer);
 
 	overlay.appendChild(dialog);
 	document.body.appendChild(overlay);
 
-	// Event handlers
-	const closeBtn = header.querySelector('.dialog-close') as HTMLButtonElement;
-	const footerCloseBtn = footer.querySelector('.dialog-close') as HTMLButtonElement;
-
 	closeBtn.addEventListener('click', closeDialog);
 	footerCloseBtn.addEventListener('click', closeDialog);
-
 	overlay.addEventListener('click', (e) => {
 		if (e.target === overlay) closeDialog();
 	});
-}
-
-function getDiffTypeLabel(type: RowDiff['type']): string {
-	switch (type) {
-		case 'same':
-			return '相同';
-		case 'changed':
-			return '变更';
-		case 'added':
-			return '新增';
-		case 'removed':
-			return '缺失';
-		default:
-			return '未知';
-	}
 }
 
 export function closeDialog(): void {

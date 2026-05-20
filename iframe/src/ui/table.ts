@@ -138,9 +138,7 @@ function createRawHeaderRow(bomFile: BomFile, side: 'old' | 'new' = 'old'): HTML
 		btn.className = 'btn-detail';
 		btn.textContent = '详情';
 		btn.addEventListener('click', () => {
-			const oldHeaders = state.oldFile?.rawHeaders || [];
-			const newHeaders = state.newFile?.rawHeaders || [];
-			showHeaderDetailDialog(oldHeaders, newHeaders);
+			showHeaderDetailDialog(state.oldFile, state.newFile);
 		});
 		actionTd.appendChild(btn);
 		tr.appendChild(actionTd);
