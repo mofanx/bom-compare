@@ -2,7 +2,7 @@ import type { BomFile, BomRow, RowDiff } from '../types';
 import { STANDARD_COLUMNS, getColumnLetter } from '../types';
 import { state } from './state';
 import { initSyncScroll } from './layout';
-import { showRowDetailDialog } from './dialog';
+import { showRowDetailDialog, showHeaderDetailDialog } from './dialog';
 import { addResizeHandles, initColumnResize } from './column-resize';
 import { addTooltipSupport } from './tooltip';
 import { initEditableTable } from './editable';
@@ -106,7 +106,7 @@ function createPresetHeaderTh(columnIndex: number, bomFile: BomFile, side: 'old'
 }
 
 // 创建原始表头行（作为 tbody 第一行，行号 1，单元格样式）
-function createRawHeaderRow(bomFile: BomFile): HTMLTableRowElement {
+function createRawHeaderRow(bomFile: BomFile, side: 'old' | 'new' = 'old'): HTMLTableRowElement {
 	const tr = document.createElement('tr');
 	tr.dataset.rowType = 'header';
 
@@ -126,6 +126,24 @@ function createRawHeaderRow(bomFile: BomFile): HTMLTableRowElement {
 
 		addTooltipSupport(td);
 		tr.appendChild(td);
+	}
+
+	if (side === 'new') {
+		const actionTd = document.createElement('td');
+		actionTd.style.position = 'sticky';
+		actionTd.style.right = '0';
+		actionTd.style.background = 'var(--bg-surface)';
+		actionTd.style.zIndex = '1';
+		const btn = document.createElement('button');
+		btn.className = 'btn-detail';
+		btn.textContent = '详情';
+		btn.addEventListener('click', () => {
+			const oldHeaders = state.oldFile?.rawHeaders || [];
+			const newHeaders = state.newFile?.rawHeaders || [];
+			showHeaderDetailDialog(oldHeaders, newHeaders);
+		});
+		actionTd.appendChild(btn);
+		tr.appendChild(actionTd);
 	}
 
 	return tr;
@@ -270,7 +288,11 @@ function renderDiffTable(container: HTMLElement, rows: RowDiff[], side: 'old' | 
 	if (side === 'new') {
 		const actionTh = document.createElement('th');
 		actionTh.textContent = '操作';
-		actionTh.style.width = '80px';
+		actionTh.style.width = '60px';
+		actionTh.style.position = 'sticky';
+		actionTh.style.right = '0';
+		actionTh.style.background = 'var(--bg-elevated)';
+		actionTh.style.zIndex = '2';
 		presetHeaderRow.appendChild(actionTh);
 	}
 
@@ -281,7 +303,7 @@ function renderDiffTable(container: HTMLElement, rows: RowDiff[], side: 'old' | 
 	const tbody = document.createElement('tbody');
 
 	if (bomFile) {
-		tbody.appendChild(createRawHeaderRow(bomFile));
+		tbody.appendChild(createRawHeaderRow(bomFile, side));
 	}
 
 	for (let i = 0; i < rows.length; i++) {
@@ -373,6 +395,10 @@ function createDiffRow(row: BomRow | null, rowDiff: RowDiff, side: 'old' | 'new'
 
 	if (side === 'new') {
 		const actionTd = document.createElement('td');
+		actionTd.style.position = 'sticky';
+		actionTd.style.right = '0';
+		actionTd.style.background = 'var(--bg-surface)';
+		actionTd.style.zIndex = '1';
 		if (rowDiff.type !== 'same' && (rowDiff.oldRow || rowDiff.newRow)) {
 			const btn = document.createElement('button');
 			btn.className = 'btn-detail';
