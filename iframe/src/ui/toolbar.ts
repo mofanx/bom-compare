@@ -2,16 +2,19 @@ import type { FilterType } from '../types';
 import { state } from './state';
 import { parseFile } from '../core/parser';
 import { compare } from '../core/comparator';
-import { exportReport } from '../core/exporter';
+import { exportReport, exportBomFile } from '../core/exporter';
 import { showLoading, updateLoadingProgress, hideLoading } from './loading';
 import { showToast } from './drop-zone';
 import { t } from '../utils/i18n';
 import { renderDiffResult } from './table';
 import { loadFile } from './drop-zone';
+import { commitEditing } from './editable';
 
 export function initToolbar(): void {
 	const oldImport = document.getElementById('old-file-import')!;
 	const newImport = document.getElementById('new-file-import')!;
+	const oldSave = document.getElementById('old-file-save')!;
+	const newSave = document.getElementById('new-file-save')!;
 	const oldClear = document.getElementById('old-file-clear')!;
 	const newClear = document.getElementById('new-file-clear')!;
 	const btnCompare = document.getElementById('btn-compare')!;
@@ -23,6 +26,8 @@ export function initToolbar(): void {
 
 	oldImport.addEventListener('click', () => openFileDialog('old'));
 	newImport.addEventListener('click', () => openFileDialog('new'));
+	oldSave.addEventListener('click', () => saveFile('old'));
+	newSave.addEventListener('click', () => saveFile('new'));
 	oldClear.addEventListener('click', () => clearPanel('old'));
 	newClear.addEventListener('click', () => clearPanel('new'));
 
@@ -156,9 +161,40 @@ async function openFileDialog(side: 'old' | 'new'): Promise<void> {
 	};
 	document.body.appendChild(input);
 	input.click();
-	
+
 	// 清理：点击后移除input元素
 	setTimeout(() => {
 		document.body.removeChild(input);
 	}, 100);
+}
+
+async function saveFile(side: 'old' | 'new'): Promise<void> {
+	commitEditing();
+
+	const bomFile = side === 'old' ? state.oldFile : state.newFile;
+	if (!bomFile) {
+		showToast(t('needFile'), 'warning');
+		return;
+	}
+
+	// Generate filename based on original filename or default
+	const pathInput = document.getElementById(`${side}-file-path`) as HTMLInputElement;
+	const originalPath = pathInput.value;
+	let fileName = side === 'old' ? 'old-file.xlsx' : 'new-file.xlsx';
+
+	if (originalPath) {
+		const originalName = originalPath.split(/[\\/]/).pop() || '';
+		const nameWithoutExt = originalName.replace(/\.[^/.]+$/, '');
+		if (nameWithoutExt) {
+			fileName = `${nameWithoutExt}.xlsx`;
+		}
+	}
+
+	try {
+		await exportBomFile(bomFile, fileName);
+		showToast(t('saveSuccess'), 'success');
+	} catch (error) {
+		if ((error as Error).name === 'AbortError') return;
+		showToast(t('saveError'), 'error');
+	}
 }

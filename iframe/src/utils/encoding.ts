@@ -20,8 +20,9 @@ export function detectEncoding(buffer: ArrayBuffer): string {
 	let hasHighBytes = false;
 	let isValidUTF8 = true;
 	let i = 0;
+	let gbkCharCount = 0;
 
-	while (i < Math.min(bytes.length, 4096)) {
+	while (i < Math.min(bytes.length, 8192)) {
 		const b = bytes[i];
 		if (b > 0x7F) {
 			hasHighBytes = true;
@@ -29,33 +30,51 @@ export function detectEncoding(buffer: ArrayBuffer): string {
 			if ((b & 0xE0) === 0xC0) {
 				if (i + 1 >= bytes.length || (bytes[i + 1] & 0xC0) !== 0x80) {
 					isValidUTF8 = false;
-					break;
+					gbkCharCount++;
+					i++;
+				} else {
+					i += 2;
 				}
-				i += 2;
 			} else if ((b & 0xF0) === 0xE0) {
 				if (i + 2 >= bytes.length || (bytes[i + 1] & 0xC0) !== 0x80 || (bytes[i + 2] & 0xC0) !== 0x80) {
 					isValidUTF8 = false;
-					break;
+					gbkCharCount++;
+					i++;
+				} else {
+					i += 3;
 				}
-				i += 3;
 			} else if ((b & 0xF8) === 0xF0) {
 				if (i + 3 >= bytes.length || (bytes[i + 1] & 0xC0) !== 0x80 || (bytes[i + 2] & 0xC0) !== 0x80 || (bytes[i + 3] & 0xC0) !== 0x80) {
 					isValidUTF8 = false;
-					break;
+					gbkCharCount++;
+					i++;
+				} else {
+					i += 4;
 				}
-				i += 4;
 			} else {
 				isValidUTF8 = false;
-				break;
+				gbkCharCount++;
+				i++;
 			}
 		} else {
 			i++;
 		}
 	}
 
-	if (!hasHighBytes || isValidUTF8) {
+	// If there are many high bytes that don't match UTF-8 pattern, likely GBK
+	if (!hasHighBytes) {
 		return 'utf-8';
 	}
 
-	return 'gbk';
+	if (isValidUTF8) {
+		return 'utf-8';
+	}
+
+	// If more than 10% of high bytes don't match UTF-8, assume GBK
+	const totalHighBytes = bytes.filter(b => b > 0x7F).length;
+	if (gbkCharCount > totalHighBytes * 0.1) {
+		return 'gbk';
+	}
+
+	return 'utf-8';
 }

@@ -53,10 +53,20 @@ export default {
 	footprint: '封装',
 	quantity: '数量',
 	manufacturer: '制造商',
-	lcscPart: 'LCSC料号',
+	lcscPartNumber: 'Part Number',
 	value: '值',
 	description: '描述',
 
 	// Diff types (for badges)
 	detail: '详情',
+
+	// Save/Export functionality
+	export: '导出',
+	saveSuccess: '文件导出成功',
+	saveError: '文件导出失败',
+	needFile: '请先导入文件',
+
+	// Column mapping
+	mappingUpdated: '列映射已更新',
+	clickToRemap: '单击修改映射',
 };

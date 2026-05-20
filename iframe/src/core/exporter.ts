@@ -1,4 +1,4 @@
-import type { DiffResult } from '../types';
+import type { DiffResult, BomFile } from '../types';
 import * as XLSX from 'xlsx';
 
 export function exportReport(result: DiffResult): void {
@@ -73,4 +73,59 @@ function downloadBlob(blob: Blob, fileName: string): void {
 	a.click();
 	document.body.removeChild(a);
 	URL.revokeObjectURL(url);
+}
+
+async function downloadBlobWithPicker(blob: Blob, fileName: string): Promise<void> {
+	// Try to use File System Access API if available
+	if ('showSaveFilePicker' in window) {
+		try {
+			const fileHandle = await (window as any).showSaveFilePicker({
+				suggestedName: fileName,
+				types: [{
+					description: 'Excel file',
+					accept: {
+						'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'],
+					},
+				}],
+			});
+			const writable = await fileHandle.createWritable();
+			await writable.write(blob);
+			await writable.close();
+			return;
+		} catch (err) {
+			// User cancelled or error occurred, fall back to traditional download
+			if ((err as Error).name !== 'AbortError') {
+				console.error('File picker failed, falling back to download:', err);
+			}
+		}
+	}
+
+	// Fall back to traditional download
+	downloadBlob(blob, fileName);
+}
+
+export async function exportBomFile(bomFile: BomFile, fileName: string): Promise<void> {
+	const wb = XLSX.utils.book_new();
+
+	// Use rawHeaders and rawRows to export original data with modifications
+	const data: string[][] = [];
+
+	// Add headers
+	if (bomFile.rawHeaders) {
+		data.push([...bomFile.rawHeaders]);
+	}
+
+	// Add rows
+	if (bomFile.rawRows) {
+		for (const row of bomFile.rawRows) {
+			data.push([...row]);
+		}
+	}
+
+	const sheet = XLSX.utils.aoa_to_sheet(data);
+	XLSX.utils.book_append_sheet(wb, sheet, 'Sheet1');
+
+	const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+	const blob = new Blob([wbout], { type: 'application/octet-stream' });
+	await downloadBlobWithPicker(blob, fileName);
 }

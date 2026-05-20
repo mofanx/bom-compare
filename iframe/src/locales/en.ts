@@ -53,10 +53,20 @@ export default {
 	footprint: 'Footprint',
 	quantity: 'Quantity',
 	manufacturer: 'Manufacturer',
-	lcscPart: 'LCSC Part',
+	partNumber: 'Part Number',
 	value: 'Value',
 	description: 'Description',
 
 	// Diff types (for badges)
 	detail: 'Detail',
+
+	// Save/Export functionality
+	export: 'Export',
+	saveSuccess: 'File exported successfully',
+	saveError: 'File export failed',
+	needFile: 'Please import a file first',
+
+	// Column mapping
+	mappingUpdated: 'Column mapping updated',
+	clickToRemap: 'Click to change mapping',
 };
