@@ -20,8 +20,14 @@ export function getLanguage(): Language {
 	return currentLanguage;
 }
 
-export function t(key: string): string {
-	return translations[currentLanguage][key] || key;
+export function t(key: string, params?: Record<string, string | number>): string {
+	let text = translations[currentLanguage][key] || key;
+	if (params) {
+		for (const [paramKey, value] of Object.entries(params)) {
+			text = text.replace(new RegExp(`\\{${paramKey}\\}`, 'g'), String(value));
+		}
+	}
+	return text;
 }
 
 export function initI18n(): void {
