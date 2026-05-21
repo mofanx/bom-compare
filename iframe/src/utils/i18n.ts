@@ -1,5 +1,7 @@
 import zhHans from '../locales/zh-Hans';
 import en from '../locales/en';
+import { renderSummary } from '../ui/summary';
+import { state } from '../ui/state';
 
 export type Language = 'zh-Hans' | 'en';
 
@@ -61,6 +63,23 @@ function updateAllText(): void {
 			el.setAttribute('title', t(key));
 		}
 	});
+
+	// Update dynamic detail buttons
+	document.querySelectorAll('.btn-detail').forEach(el => {
+		(el as HTMLButtonElement).textContent = t('detail');
+	});
+
+	// Update action column headers
+	document.querySelectorAll('th').forEach(el => {
+		if (el.textContent === '操作' || el.textContent === 'Action') {
+			el.textContent = t('action');
+		}
+	});
+
+	// Update summary if comparison result exists
+	if (state.diffResult) {
+		renderSummary(state.diffResult);
+	}
 }
 
 export function addI18nSupport(): void {
