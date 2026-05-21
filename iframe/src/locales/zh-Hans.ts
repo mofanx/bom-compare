@@ -124,6 +124,7 @@ export default {
 	bomCompareReport: 'BOM 对比报告',
 	statisticItem: '统计项',
 	count: '数量',
+	row: '第{rowNum}行',
 
 	// Column settings
 	columnSettings: '列名设置',

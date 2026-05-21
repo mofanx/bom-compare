@@ -175,7 +175,7 @@ export function showRowDetailDialog(rowDiff: RowDiff): void {
 		}));
 
 		const summaryText = t('rowDiffSummary', { file: fileLabel, designator, rowNum });
-		_showCompareDialog(t('compareRowDiff'), rowDiff.type === 'removed' ? `${t('oldFile')}第${rowNum}行` : '', rowDiff.type === 'added' ? `${t('newFile')}第${rowNum}行` : '', columns, summaryText, typeLabel);
+		_showCompareDialog(t('compareRowDiff'), rowDiff.type === 'removed' ? `${t('oldFile')} ${t('row', { rowNum })}` : '', rowDiff.type === 'added' ? `${t('newFile')} ${t('row', { rowNum })}` : '', columns, summaryText, typeLabel);
 	} else {
 		const diffFieldSet = new Set(rowDiff.cellDiffs.map(d => d.field));
 		const oldNum = oldRow ? oldRow.rowIndex + 2 : '?';
@@ -193,7 +193,7 @@ export function showRowDetailDialog(rowDiff: RowDiff): void {
 			? t('rowDiffDetail', { oldNum, newNum, designator, columns: diffLabels.join('、') })
 			: t('rowDiffSame', { oldNum, newNum, designator });
 
-		_showCompareDialog(t('compareRowDiff'), `${t('oldFile')}第${oldNum}行`, `${t('newFile')}第${newNum}行`, columns, summaryText);
+		_showCompareDialog(t('compareRowDiff'), `${t('oldFile')} ${t('row', { rowNum: oldNum })}`, `${t('newFile')} ${t('row', { rowNum: newNum })}`, columns, summaryText);
 	}
 }
 

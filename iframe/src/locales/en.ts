@@ -123,6 +123,7 @@ export default {
 	bomCompareReport: 'BOM Comparison Report',
 	statisticItem: 'Statistic Item',
 	count: 'Count',
+	row: 'Row {rowNum}',
 
 	// Column settings
 	columnSettings: 'Column Settings',
