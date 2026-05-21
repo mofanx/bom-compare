@@ -685,10 +685,22 @@
 				color: var(--text);
 			}
 
+			.dialog-header {
+				display: flex;
+				justify-content: space-between;
+				align-items: center;
+				padding: 16px 20px;
+				border-bottom: 1px solid var(--border);
+			}
+
+			.dialog-header h2 {
+				margin: 0;
+				font-size: 16px;
+				font-weight: 600;
+				color: var(--text);
+			}
+
 			.dialog-close {
-				position: absolute;
-				top: 16px;
-				right: 16px;
 				width: 28px;
 				height: 28px;
 				border: none;
@@ -701,6 +713,7 @@
 				align-items: center;
 				justify-content: center;
 				transition: all var(--transition);
+				flex-shrink: 0;
 			}
 
 			.dialog-close:hover {
@@ -764,6 +777,266 @@
 				padding: 2px 6px;
 				border-radius: 4px;
 			}
+
+			/* Column Settings Dialog */
+			.dialog-column-settings {
+				min-width: 540px;
+				max-width: 720px;
+				max-height: 85vh;
+				display: flex;
+				flex-direction: column;
+				border-radius: var(--radius-lg);
+			}
+
+			.dialog-column-settings .dialog-body {
+				padding: 16px;
+				overflow-y: auto;
+				flex: 1;
+			}
+
+			.dialog-column-settings .dialog-body::-webkit-scrollbar {
+				width: 6px;
+				height: 6px;
+			}
+
+			.dialog-column-settings .dialog-body::-webkit-scrollbar-track {
+				background: transparent;
+			}
+
+			.dialog-column-settings .dialog-body::-webkit-scrollbar-thumb {
+				background: var(--border);
+				border-radius: 3px;
+			}
+
+			.dialog-column-settings .dialog-body::-webkit-scrollbar-thumb:hover {
+				background: var(--text-muted);
+			}
+
+			.dialog-column-settings .dialog-footer {
+				padding: 16px 20px;
+				border-top: 1px solid var(--border);
+				display: flex;
+				justify-content: space-between;
+				align-items: center;
+			}
+
+			.dialog-footer-actions {
+				display: flex;
+				gap: 8px;
+			}
+
+			.field-cards {
+				display: flex;
+				flex-direction: column;
+				gap: 8px;
+			}
+
+			.field-card {
+				border: 1px solid var(--border);
+				border-radius: 8px;
+				padding: 14px 16px;
+				background: var(--bg);
+				transition: border-color var(--transition), box-shadow var(--transition);
+			}
+
+			.field-card:hover {
+				border-color: var(--border-light);
+				box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+			}
+
+			.field-card-header {
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				margin-bottom: 10px;
+			}
+
+			.field-card-title {
+				display: flex;
+				align-items: center;
+				gap: 8px;
+			}
+
+			.field-card-title .field-name {
+				font-weight: 600;
+				font-size: 14px;
+				color: var(--text);
+			}
+
+			.field-card-title .field-id {
+				font-size: 12px;
+				color: var(--text-muted);
+				font-family: monospace;
+			}
+
+			.field-card-title .required-badge {
+				font-size: 11px;
+				padding: 2px 8px;
+				border-radius: 4px;
+				background: var(--primary);
+				color: #fff;
+				font-weight: 500;
+			}
+
+			.field-card-delete-btn {
+				font-size: 12px;
+				padding: 4px 10px;
+				color: var(--danger);
+				border: 1px solid var(--border);
+				background: var(--bg);
+				border-radius: 4px;
+				cursor: pointer;
+				transition: all var(--transition);
+			}
+
+			.field-card-delete-btn:hover {
+				background: var(--danger-bg);
+				border-color: var(--danger);
+			}
+
+			.alias-tags {
+				display: flex;
+				flex-wrap: wrap;
+				gap: 6px;
+				align-items: center;
+			}
+
+			.alias-tag {
+				display: inline-flex;
+				align-items: center;
+				gap: 4px;
+				padding: 4px 10px;
+				border-radius: 6px;
+				font-size: 12px;
+				background: var(--bg-hover);
+				color: var(--text-secondary);
+				border: 1px solid var(--border-light);
+				transition: all var(--transition);
+			}
+
+			.alias-tag:hover {
+				background: var(--bg-elevated);
+				border-color: var(--border);
+			}
+
+			.alias-tag .alias-text {
+				color: var(--text);
+			}
+
+			.alias-tag .alias-remove {
+				cursor: pointer;
+				margin-left: 2px;
+				font-size: 14px;
+				line-height: 1;
+				color: var(--text-muted);
+				transition: color var(--transition);
+			}
+
+			.alias-tag .alias-remove:hover {
+				color: var(--danger);
+			}
+
+			.alias-add-wrapper {
+				display: inline-flex;
+				align-items: center;
+				gap: 6px;
+			}
+
+			.alias-add-input {
+				width: 100px;
+				height: 28px;
+				padding: 0 8px;
+				border: 1px solid var(--border);
+				border-radius: 4px;
+				font-size: 12px;
+				background: var(--bg-surface);
+				color: var(--text);
+				transition: border-color var(--transition), box-shadow var(--transition);
+			}
+
+			.alias-add-input:focus {
+				outline: none;
+				border-color: var(--primary);
+				box-shadow: 0 0 0 2px rgba(124, 110, 240, 0.1);
+			}
+
+			.alias-add-btn {
+				padding: 0 8px;
+				height: 28px;
+				font-size: 14px;
+				border: 1px solid var(--border);
+				background: var(--bg);
+				border-radius: 4px;
+				cursor: pointer;
+				color: var(--text);
+				transition: all var(--transition);
+			}
+
+			.alias-add-btn:hover {
+				background: var(--bg-hover);
+				border-color: var(--primary);
+				color: var(--primary);
+			}
+
+			.add-field-btn {
+				margin-top: 12px;
+				width: 100%;
+				padding: 10px;
+				border: 1px dashed var(--border);
+				background: var(--bg-hover);
+				border-radius: 8px;
+				cursor: pointer;
+				color: var(--text-secondary);
+				font-size: 13px;
+				transition: all var(--transition);
+			}
+
+			.add-field-btn:hover {
+				border-color: var(--primary);
+				background: var(--primary-light);
+				color: var(--primary);
+			}
+
+			.add-field-form {
+				border: 1px dashed var(--border);
+				border-radius: 8px;
+				padding: 14px 16px;
+				margin-top: 12px;
+				display: flex;
+				flex-wrap: wrap;
+				gap: 10px;
+				align-items: flex-end;
+				background: var(--bg-hover);
+			}
+
+			.add-field-form input {
+				height: 32px;
+				padding: 0 10px;
+				border: 1px solid var(--border);
+				border-radius: 4px;
+				font-size: 13px;
+				background: var(--bg-surface);
+				color: var(--text);
+				transition: border-color var(--transition), box-shadow var(--transition);
+			}
+
+			.add-field-form input:focus {
+				outline: none;
+				border-color: var(--primary);
+				box-shadow: 0 0 0 2px rgba(124, 110, 240, 0.1);
+			}
+
+			.add-field-form .form-confirm {
+				height: 32px;
+				padding: 0 14px;
+				font-size: 13px;
+			}
+
+			.add-field-form .form-cancel {
+				height: 32px;
+				padding: 0 12px;
+				font-size: 13px;
+			}
 		</style>
 	</head>
 	<body>
@@ -799,6 +1072,7 @@
 					</select>
 				</div>
 				<div class="action-bar-right">
+					<button id="btn-column-settings" class="btn btn-ghost" title="列名设置">⚙</button>
 					<button id="btn-lang" class="btn btn-ghost" title="切换语言">中/EN</button>
 					<button id="btn-export" class="btn" style="display:none;">导出报告</button>
 					<button id="btn-compare" class="btn btn-primary">执行 BOM 比对</button>
