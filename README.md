@@ -1,55 +1,100 @@
-[简体中文](#) | [English](./README.en.md) | [繁體中文](./README.zh-Hant.md) | [日本語](./README.ja.md) | [Русский](./README.ru.md)
+# BOM Compare - BOM 对比工具
 
-# pro-api-sdk
+中文 | [English](README.en.md)
 
-嘉立创EDA & EasyEDA 专业版扩展 API 开发工具
+嘉立创 EDA Pro 扩展，用于对比两个 BOM（物料清单）文件的差异，以表格形式直观展示变更内容。
 
-<a href="https://github.com/easyeda/pro-api-sdk" style="vertical-align: inherit;" target="_blank"><img src="https://img.shields.io/github/stars/easyeda/pro-api-sdk" alt="GitHub Repo Stars" class="not-medium-zoom-image" style="display: inline; vertical-align: inherit;" /></a>&nbsp;<a href="https://github.com/easyeda/pro-api-sdk/issues" style="vertical-align: inherit;" target="_blank"><img src="https://img.shields.io/github/issues/easyeda/pro-api-sdk" alt="GitHub Issues" class="not-medium-zoom-image" style="display: inline; vertical-align: inherit;" /></a>&nbsp;<a href="https://github.com/easyeda/pro-api-sdk" style="vertical-align: inherit;" target="_blank"><img src="https://img.shields.io/github/repo-size/easyeda/pro-api-sdk" alt="GitHub Repo Size" class="not-medium-zoom-image" style="display: inline; vertical-align: inherit;" /></a>&nbsp;<a href="https://choosealicense.com/licenses/apache-2.0/" style="vertical-align: inherit;" target="_blank"><img src="https://img.shields.io/github/license/easyeda/pro-api-sdk" alt="GitHub License" class="not-medium-zoom-image" style="display: inline; vertical-align: inherit;" /></a>&nbsp;<a href="https://www.npmjs.com/package/@jlceda/pro-api-types" style="vertical-align: inherit;" target="_blank"><img src="https://img.shields.io/npm/v/%40jlceda%2Fpro-api-types?label=pro-api-types" alt="NPM Version" class="not-medium-zoom-image" style="display: inline; vertical-align: inherit;" /></a>&nbsp;<a href="https://www.npmjs.com/package/@jlceda/pro-api-types" style="vertical-align: inherit;" target="_blank"><img src="https://img.shields.io/npm/d18m/%40jlceda%2Fpro-api-types" alt="NPM Downloads" class="not-medium-zoom-image" style="display: inline; vertical-align: inherit;" /></a>
+## 功能特性
 
-> [!NOTE]
->
-> 详细开发文档请访问：[https://prodocs.lceda.cn/cn/api/guide/](https://prodocs.lceda.cn/cn/api/guide/)
+- **多格式支持**：CSV、TXT、XLS、XLSX 格式导入
+- **智能解析**：自动识别文件编码（UTF-8、GBK、GB2312）、表头行、分隔符
+- **列名映射**：自动匹配常见中英文列名变体，支持手动配置映射关系
+- **差异对比**：以位号（Designator）为基准，逐列对比并高亮差异
+- **差异导航**：快速跳转上/下一处差异，支持按类型筛选（新增/缺失/变更/相同）
+- **同步滚动**：左右面板联动滚动，方便逐行对照
+- **导出报告**：支持导出对比结果为 CSV/XLSX 格式
+- **拖拽导入**：直接拖拽文件到面板即可加载
+- **虚拟滚动**：支持上万行 BOM 数据流畅渲染
+- **国际化**：支持中文/英文界面切换
+- **快捷键**：Ctrl+D 执行对比、F3/Shift+F3 跳转差异、Ctrl+F 搜索
 
-## 进入开发
+## 界面布局
 
-本开发工具组包含了用于开发 [嘉立创EDA专业版](https://pro.lceda.cn/) 扩展包的所有环境和工具，并内置了 ESLint 的推荐规则。
+左右双面板布局，左侧为旧文件，右侧为新文件：
 
-1. 克隆 [pro-api-sdk](https://github.com/easyeda/pro-api-sdk) 项目仓库到本地
+- 顶部：文件操作栏（浏览、清空、另存为）
+- 中间：BOM 数据表格（支持列宽调整、排序、搜索）
+- 底部：结果汇总栏（统计相同/差异/新增/缺失行数）
 
-    Gitee:
+## 差异高亮
 
-    ```shell
-    git clone --depth=1 https://gitee.com/jlceda/pro-api-sdk.git
-    ```
+| 颜色 | 含义 |
+|------|------|
+| 蓝色/青色单元格 | 值在新旧文件中不同 |
+| 橙色/黄色整行 | 新文件中多出的元器件 |
+| 红色/粉色整行 | 旧文件中存在但新文件中缺失 |
+| 无高亮 | 完全一致 |
 
-    GitHub:
+## 开发
 
-    ```shell
-    git clone --depth=1 https://github.com/easyeda/pro-api-sdk.git
-    ```
+### 环境要求
 
-2. 初始化开发环境（安装依赖）
+- Node.js >= 20.17.0
 
-    ```shell
-    npm install
-    ```
+### 安装依赖
 
-3. 进行些许变更 ...
+```bash
+npm install
+```
 
-    - 修改文件夹名称为你的项目名称
-    - 参考 [开发指南](https://prodocs.lceda.cn/cn/api/guide/how-to-start.html#ii-%E6%89%A9%E5%B1%95%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6) 修改 `extension.json` 中的 `name`、`displayName`、`description`、`publisher` 字段
-    - 结合 [扩展 API 参考文档](https://prodocs.lceda.cn/cn/api/reference/pro-api.html) 编写你的代码
+### 常用命令
 
-4. 编译扩展包
+```bash
+npm run compile    # 编译项目
+npm run build      # 编译 + 打包扩展
+npm run lint       # 代码检查
+npm run fix        # 自动修复代码风格
+npm run test       # 运行测试（watch 模式）
+npm run test:run   # 运行测试（单次）
+```
 
-    ```shell
-    npm run build
-    ```
+### 项目结构
 
-5. 在 嘉立创EDA专业版 中安装生成在 `./build/dist/` 下的扩展包
+```
+├── src/                    # 扩展入口
+│   └── index.ts            # 注册菜单，打开 iframe 窗口
+├── iframe/                 # 主界面（iframe 内嵌页面）
+│   ├── index.html          # 页面入口
+│   ├── styles/             # 样式（CSS 变量、主题、布局、表格）
+│   └── src/
+│       ├── main.ts         # 初始化入口
+│       ├── types.ts        # 类型定义
+│       ├── locales/        # 国际化资源
+│       ├── core/           # 核心逻辑
+│       │   ├── parser/     # 文件解析（CSV、Excel）
+│       │   ├── comparator.ts   # 对比算法
+│       │   ├── column-mapper.ts # 列映射
+│       │   └── exporter.ts     # 导出
+│       ├── ui/             # UI 组件
+│       └── utils/          # 工具函数
+├── tests/                  # 测试用例及样本数据
+├── config/                 # esbuild 构建配置
+├── build/                  # 打包脚本
+└── extension.json          # 扩展配置
+```
 
-## 开源许可
+### 技术栈
 
-<a href="https://choosealicense.com/licenses/apache-2.0/" style="vertical-align: inherit;" target="_blank"><img src="https://img.shields.io/github/license/easyeda/pro-api-sdk" alt="GitHub License" class="not-medium-zoom-image" style="display: inline; vertical-align: inherit;" /></a>
+- TypeScript（strict 模式）
+- esbuild（构建）
+- Vitest（测试）
+- xlsx / papaparse / jschardet（文件解析）
+- @jlceda/pro-api-types（EDA 扩展 API）
 
-本开发工具组使用 [Apache License 2.0](https://choosealicense.com/licenses/apache-2.0/) 开源许可协议，你仅可以将 **嘉立创EDA**、**EasyEDA** 商标信息用于依托于本工具组开发的扩展包的 **功能描述部分** 和 **开源发布的标题部分**。
+## 使用方式
+
+安装扩展后，在嘉立创 EDA Pro 的首页、原理图编辑器或 PCB 编辑器的顶部菜单中点击 **BOM Compare** 即可打开。
+
+## 许可证
+
+[Apache-2.0](LICENSE)

@@ -1,47 +1,100 @@
-[简体中文](./README.md) | [English](#) | [繁體中文](./README.zh-Hant.md) | [日本語](./README.ja.md) | [Русский](./README.ru.md)
+# BOM Compare - BOM Comparison Tool
 
-# pro-api-sdk
+[中文](README.md) | English
 
-JLCEDA & EasyEDA Pro Extension API Development Kit
+An EasyEDA Pro extension for comparing differences between two BOM (Bill of Materials) files, presenting changes visually in a table format.
 
-<a href="https://github.com/easyeda/pro-api-sdk" style="vertical-align: inherit;" target="_blank"><img src="https://img.shields.io/github/stars/easyeda/pro-api-sdk" alt="GitHub Repo Stars" class="not-medium-zoom-image" style="display: inline; vertical-align: inherit;" /></a>&nbsp;<a href="https://github.com/easyeda/pro-api-sdk/issues" style="vertical-align: inherit;" target="_blank"><img src="https://img.shields.io/github/issues/easyeda/pro-api-sdk" alt="GitHub Issues" class="not-medium-zoom-image" style="display: inline; vertical-align: inherit;" /></a>&nbsp;<a href="https://github.com/easyeda/pro-api-sdk" style="vertical-align: inherit;" target="_blank"><img src="https://img.shields.io/github/repo-size/easyeda/pro-api-sdk" alt="GitHub Repo Size" class="not-medium-zoom-image" style="display: inline; vertical-align: inherit;" /></a>&nbsp;<a href="https://choosealicense.com/licenses/apache-2.0/" style="vertical-align: inherit;" target="_blank"><img src="https://img.shields.io/github/license/easyeda/pro-api-sdk" alt="GitHub License" class="not-medium-zoom-image" style="display: inline; vertical-align: inherit;" /></a>&nbsp;<a href="https://www.npmjs.com/package/@jlceda/pro-api-types" style="vertical-align: inherit;" target="_blank"><img src="https://img.shields.io/npm/v/%40jlceda%2Fpro-api-types?label=pro-api-types" alt="NPM Version" class="not-medium-zoom-image" style="display: inline; vertical-align: inherit;" /></a>&nbsp;<a href="https://www.npmjs.com/package/@jlceda/pro-api-types" style="vertical-align: inherit;" target="_blank"><img src="https://img.shields.io/npm/d18m/%40jlceda%2Fpro-api-types" alt="NPM Downloads" class="not-medium-zoom-image" style="display: inline; vertical-align: inherit;" /></a>
+## Features
 
-> [!NOTE]
->
-> For more information on the development of EasyEDA Pro Extension, please visit: [https://prodocs.easyeda.com/en/api/guide/](https://prodocs.easyeda.com/en/api/guide/)
+- **Multi-format Support**: Import CSV, TXT, XLS, XLSX formats
+- **Smart Parsing**: Auto-detect file encoding (UTF-8, GBK, GB2312), header rows, and delimiters
+- **Column Mapping**: Auto-match common Chinese/English column name variants with manual configuration support
+- **Diff Comparison**: Compare column by column based on Designator, highlighting differences
+- **Diff Navigation**: Jump to previous/next difference quickly, filter by type (Added/Missing/Changed/Same)
+- **Synchronized Scrolling**: Left and right panels scroll together for easy line-by-line comparison
+- **Export Report**: Export comparison results in CSV/XLSX format
+- **Drag & Drop Import**: Load files by dragging them directly onto the panel
+- **Virtual Scrolling**: Smooth rendering for BOM data with tens of thousands of rows
+- **Internationalization**: Chinese/English interface switching
+- **Keyboard Shortcuts**: Ctrl+D to compare, F3/Shift+F3 to navigate differences, Ctrl+F to search
 
-## Enter Development
+## Layout
 
-This development tool set contains all the environments and tools for developing the [EasyEDA Pro Edition](https://pro.easyeda.com/) extension package, and has built-in recommended rules for ESLint.
+Side-by-side dual-panel layout with the old file on the left and the new file on the right:
 
-1. Clone the [pro-api-sdk](https://github.com/easyeda/pro-api-sdk) project repository to your local computer
+- Top: File action bar (Browse, Clear, Save As)
+- Middle: BOM data table (resizable columns, sorting, search)
+- Bottom: Summary bar (statistics for Same/Changed/Added/Missing rows)
 
-    ```shell
-    git clone --depth=1 https://github.com/easyeda/pro-api-sdk.git
-    ```
+## Diff Highlighting
 
-2. Initializing the development environment (installing dependencies)
+| Color | Meaning |
+|-------|---------|
+| Blue/Cyan cell | Value differs between old and new files |
+| Orange/Yellow row | Component exists only in the new file |
+| Red/Pink row | Component exists in the old file but missing in the new |
+| No highlight | Identical |
 
-    ```shell
-    npm install
-    ```
+## Development
 
-3. Make your changes ...
+### Requirements
 
-    - Rename the folder to your project name
-    - Refer to the [Development Guide](https://prodocs.lceda.cn/en/api/guide/how-to-start.html#ii-extension-configuration) to modify the `name`, `displayName`, `description`, and `publisher` fields in `extension.json`
-    - Write your code using the [Extension API Reference](https://prodocs.lceda.cn/en/api/reference/pro-api.html)
+- Node.js >= 20.17.0
 
-4. Compile the extension package
+### Install Dependencies
 
-    ```shell
-    npm run build
-    ```
+```bash
+npm install
+```
 
-5. Install the extension package generated under `./build/dist/` in EasyEDA Pro Edition
+### Common Commands
 
-## Open-source License
+```bash
+npm run compile    # Compile the project
+npm run build      # Compile + package the extension
+npm run lint       # Code linting
+npm run fix        # Auto-fix code style
+npm run test       # Run tests (watch mode)
+npm run test:run   # Run tests (single run)
+```
 
-<a href="https://choosealicense.com/licenses/apache-2.0/" style="vertical-align: inherit;" target="_blank"><img src="https://img.shields.io/github/license/easyeda/pro-api-sdk" alt="GitHub License" class="not-medium-zoom-image" style="display: inline; vertical-align: inherit;" /></a>
+### Project Structure
 
-This development tool uses the [Apache License 2.0](https://choosealicense.com/licenses/apache-2.0/) open source license agreement. You can only use the **嘉立创EDA** and **EasyEDA** trademark information for the **function description part** and **open source release title part** of the extension package developed based on this tool.
+```
+├── src/                    # Extension entry
+│   └── index.ts            # Register menu, open iframe window
+├── iframe/                 # Main UI (iframe embedded page)
+│   ├── index.html          # Page entry
+│   ├── styles/             # Styles (CSS variables, themes, layout, tables)
+│   └── src/
+│       ├── main.ts         # Initialization entry
+│       ├── types.ts        # Type definitions
+│       ├── locales/        # i18n resources
+│       ├── core/           # Core logic
+│       │   ├── parser/     # File parsing (CSV, Excel)
+│       │   ├── comparator.ts   # Comparison algorithm
+│       │   ├── column-mapper.ts # Column mapping
+│       │   └── exporter.ts     # Export
+│       ├── ui/             # UI components
+│       └── utils/          # Utility functions
+├── tests/                  # Test cases and sample data
+├── config/                 # esbuild build config
+├── build/                  # Packaging scripts
+└── extension.json          # Extension config
+```
+
+### Tech Stack
+
+- TypeScript (strict mode)
+- esbuild (build)
+- Vitest (testing)
+- xlsx / papaparse / jschardet (file parsing)
+- @jlceda/pro-api-types (EDA extension API)
+
+## Usage
+
+After installing the extension, click **BOM Compare** in the top menu of EasyEDA Pro's homepage, schematic editor, or PCB editor.
+
+## License
+
+[Apache-2.0](LICENSE)
