@@ -1044,38 +1044,38 @@
 			<div class="file-row">
 				<div class="file-group">
 					<span class="file-group-label" data-i18n="oldFile">旧文件</span>
-					<input type="text" id="old-file-path" class="file-path" readonly placeholder="拖拽或选择旧版 BOM..." />
-					<button id="old-file-import" class="btn btn-ghost" data-i18n="import" title="导入文件">导入</button>
-					<button id="old-file-save" class="btn btn-ghost" data-i18n="export" title="导出文件">导出</button>
-					<button id="old-file-clear" class="btn btn-ghost" data-i18n="clear" title="清空">清空</button>
+					<input type="text" id="old-file-path" class="file-path" readonly data-i18n-placeholder="oldFilePlaceholder" placeholder="拖拽或选择旧版 BOM..." />
+					<button id="old-file-import" class="btn btn-ghost" data-i18n="import" data-i18n-title="importFile">导入</button>
+					<button id="old-file-save" class="btn btn-ghost" data-i18n="export" data-i18n-title="exportFile">导出</button>
+					<button id="old-file-clear" class="btn btn-ghost" data-i18n="clear" data-i18n-title="clearFile">清空</button>
 				</div>
 				<div class="file-group">
 					<span class="file-group-label" data-i18n="newFile">新文件</span>
-					<input type="text" id="new-file-path" class="file-path" readonly placeholder="拖拽或选择新版 BOM..." />
-					<button id="new-file-import" class="btn btn-ghost" data-i18n="import" title="导入文件">导入</button>
-					<button id="new-file-save" class="btn btn-ghost" data-i18n="export" title="导出文件">导出</button>
-					<button id="new-file-clear" class="btn btn-ghost" data-i18n="clear" title="清空">清空</button>
+					<input type="text" id="new-file-path" class="file-path" readonly data-i18n-placeholder="newFilePlaceholder" placeholder="拖拽或选择新版 BOM..." />
+					<button id="new-file-import" class="btn btn-ghost" data-i18n="import" data-i18n-title="importFile">导入</button>
+					<button id="new-file-save" class="btn btn-ghost" data-i18n="export" data-i18n-title="exportFile">导出</button>
+					<button id="new-file-clear" class="btn btn-ghost" data-i18n="clear" data-i18n-title="clearFile">清空</button>
 				</div>
 			</div>
 
 			<div class="action-bar">
 				<div class="action-bar-left">
-					<input type="text" id="search-input" class="search-input" placeholder="搜索位号..." />
-					<button id="btn-prev-diff" class="btn btn-icon" title="上一处差异">&#9650;</button>
-					<button id="btn-next-diff" class="btn btn-icon" title="下一处差异">&#9660;</button>
+					<input type="text" id="search-input" class="search-input" data-i18n-placeholder="searchPlaceholder" placeholder="搜索位号..." />
+					<button id="btn-prev-diff" class="btn btn-icon" data-i18n-title="prevDiff" title="上一处差异">&#9650;</button>
+					<button id="btn-next-diff" class="btn btn-icon" data-i18n-title="nextDiff" title="下一处差异">&#9660;</button>
 					<select id="filter-select" class="filter-select">
-						<option value="all">全部</option>
-						<option value="diff">仅差异</option>
-						<option value="added">仅新增</option>
-						<option value="removed">仅缺失</option>
-						<option value="same">仅相同</option>
+						<option value="all" data-i18n="filterAll">全部</option>
+						<option value="diff" data-i18n="filterDiff">仅差异</option>
+						<option value="added" data-i18n="filterAdded">仅新增</option>
+						<option value="removed" data-i18n="filterRemoved">仅缺失</option>
+						<option value="same" data-i18n="filterSame">仅相同</option>
 					</select>
 				</div>
 				<div class="action-bar-right">
-					<button id="btn-lang" class="btn btn-ghost" title="切换语言">中/EN</button>
+					<button id="btn-lang" class="btn btn-ghost" data-i18n-title="switchLanguage" title="切换语言">中/EN</button>
 					<button id="btn-column-settings" class="btn btn-ghost" data-i18n="columnMapping" data-i18n-title="columnMappingTooltip">列名映射</button>
-					<button id="btn-export" class="btn" style="display:none;">导出报告</button>
-					<button id="btn-compare" class="btn btn-primary">执行 BOM 比对</button>
+					<button id="btn-export" class="btn" style="display:none;" data-i18n="exportReport">导出报告</button>
+					<button id="btn-compare" class="btn btn-primary" data-i18n="executeCompare">执行 BOM 比对</button>
 				</div>
 			</div>
 
@@ -1090,10 +1090,10 @@
 							<line x1="9" y1="15" x2="12" y2="12"></line>
 							<line x1="15" y1="15" x2="12" y2="12"></line>
 						</svg>
-						<p class="drop-zone-title">旧版 BOM 文件</p>
-						<p class="drop-zone-sub">拖拽文件到此处，或点击下方按钮选择</p>
-						<p class="drop-zone-sub">支持 CSV / TXT / XLS / XLSX</p>
-						<label for="file-input-old" class="drop-zone-label">点击选择文件</label>
+						<p class="drop-zone-title" data-i18n="dropOldTitle">旧版 BOM 文件</p>
+						<p class="drop-zone-sub" data-i18n="dropInstruction">拖拽文件到此处，或点击下方按钮选择</p>
+						<p class="drop-zone-sub" data-i18n="dropSub">支持 CSV / TXT / XLS / XLSX</p>
+						<label for="file-input-old" class="drop-zone-label" data-i18n="clickSelectFile">点击选择文件</label>
 					</div>
 					<div class="table-container" id="table-left" style="display:none;"></div>
 				</div>
@@ -1110,17 +1110,17 @@
 							<line x1="9" y1="15" x2="12" y2="12"></line>
 							<line x1="15" y1="15" x2="12" y2="12"></line>
 						</svg>
-						<p class="drop-zone-title">新版 BOM 文件</p>
-						<p class="drop-zone-sub">拖拽文件到此处，或点击下方按钮选择</p>
-						<p class="drop-zone-sub">支持 CSV / TXT / XLS / XLSX</p>
-						<label for="file-input-new" class="drop-zone-label">点击选择文件</label>
+						<p class="drop-zone-title" data-i18n="dropNewTitle">新版 BOM 文件</p>
+						<p class="drop-zone-sub" data-i18n="dropInstruction">拖拽文件到此处，或点击下方按钮选择</p>
+						<p class="drop-zone-sub" data-i18n="dropSub">支持 CSV / TXT / XLS / XLSX</p>
+						<label for="file-input-new" class="drop-zone-label" data-i18n="clickSelectFile">点击选择文件</label>
 					</div>
 					<div class="table-container" id="table-right" style="display:none;"></div>
 				</div>
 			</div>
 
 			<div class="summary-bar" id="summary-bar">
-				<span class="summary-text" id="summary-text">请加载两侧 BOM 文件后执行对比</span>
+				<span class="summary-text" id="summary-text" data-i18n="summaryText">请加载两侧 BOM 文件后执行对比</span>
 				<div class="summary-badges" id="summary-badges"></div>
 			</div>
 		</div>

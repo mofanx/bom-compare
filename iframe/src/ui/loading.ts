@@ -2,9 +2,12 @@ import { state } from './state';
 
 let loadingOverlay: HTMLElement | null = null;
 
-export function showLoading(message: string = '加载中...'): void {
+import { t } from '../utils/i18n';
+
+export function showLoading(message?: string): void {
+	const msg = message || t('loading');
 	state.loading = true;
-	state.loadingMessage = message;
+	state.loadingMessage = msg;
 	state.loadingProgress = 0;
 
 	if (!loadingOverlay) {

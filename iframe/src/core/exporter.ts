@@ -1,27 +1,28 @@
 import type { DiffResult, BomFile } from '../types';
 import * as XLSX from 'xlsx';
+import { t } from '../utils/i18n';
 
 export async function exportReport(result: DiffResult): Promise<void> {
 	const wb = XLSX.utils.book_new();
 
 	// Sheet 1: Summary
 	const summaryData = [
-		['BOM 对比报告'],
+		[t('bomCompareReport')],
 		[''],
-		['统计项', '数量'],
-		['总行数', result.summary.total],
-		['完全相同', result.summary.same],
-		['有差异', result.summary.changed],
-		['新增', result.summary.added],
-		['缺失', result.summary.removed],
+		[t('statisticItem'), t('count')],
+		[t('totalRows'), result.summary.total],
+		[t('identical'), result.summary.same],
+		[t('differences'), result.summary.changed],
+		[t('addedRows'), result.summary.added],
+		[t('removedRows'), result.summary.removed],
 		[''],
-		['对比列', result.comparedColumns.join(', ')],
+		[t('comparedColumns'), result.comparedColumns.join(', ')],
 	];
 	const summarySheet = XLSX.utils.aoa_to_sheet(summaryData);
-	XLSX.utils.book_append_sheet(wb, summarySheet, '变更摘要');
+	XLSX.utils.book_append_sheet(wb, summarySheet, t('summarySheet'));
 
 	// Sheet 2: Detail
-	const detailHeaders = ['差异类型', '位号', '字段', '旧值', '新值'];
+	const detailHeaders = [t('diffType'), t('designator'), t('field'), t('oldValue'), t('newValue')];
 	const detailData: (string | number)[][] = [detailHeaders];
 
 	for (const row of result.rows) {
@@ -30,18 +31,18 @@ export async function exportReport(result: DiffResult): Promise<void> {
 		const designator = (row.oldRow || row.newRow)?.designator || '';
 
 		if (row.type === 'added') {
-			detailData.push(['新增', designator, '-', '-', '-']);
+			detailData.push([t('new'), designator, '-', '-', '-']);
 		} else if (row.type === 'removed') {
-			detailData.push(['缺失', designator, '-', '-', '-']);
+			detailData.push([t('missing'), designator, '-', '-', '-']);
 		} else if (row.type === 'changed') {
 			for (const diff of row.cellDiffs) {
-				detailData.push(['变更', designator, diff.field, diff.oldValue, diff.newValue]);
+				detailData.push([t('change'), designator, diff.field, diff.oldValue, diff.newValue]);
 			}
 		}
 	}
 
 	const detailSheet = XLSX.utils.aoa_to_sheet(detailData);
-	XLSX.utils.book_append_sheet(wb, detailSheet, '差异明细');
+	XLSX.utils.book_append_sheet(wb, detailSheet, t('detailSheet'));
 
 	const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
 	const blob = new Blob([wbout], { type: 'application/octet-stream' });

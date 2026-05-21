@@ -1,6 +1,6 @@
 import type { ColumnMapping, BomFile, RowDiff } from '../types';
 import { getActiveColumns } from '../core/column-config';
-import { getLanguage } from '../utils/i18n';
+import { t, getLanguage } from '../utils/i18n';
 
 let overlay: HTMLElement | null = null;
 
@@ -21,8 +21,8 @@ export function showColumnMappingDialog(
 	const header = document.createElement('div');
 	header.className = 'dialog-header';
 	header.innerHTML = `
-		<h2>列映射配置</h2>
-		<button class="dialog-close" title="关闭">×</button>
+		<h2>${t('columnMappingTitle')}</h2>
+		<button class="dialog-close" title="${t('close')}">×</button>
 	`;
 	dialog.appendChild(header);
 
@@ -35,8 +35,8 @@ export function showColumnMappingDialog(
 	const thead = document.createElement('thead');
 	const headerRow = document.createElement('tr');
 	headerRow.innerHTML = `
-		<th>原始列名</th>
-		<th>映射到字段</th>
+		<th>${t('originalColumn')}</th>
+		<th>${t('mapToField')}</th>
 	`;
 	thead.appendChild(headerRow);
 	table.appendChild(thead);
@@ -56,7 +56,7 @@ export function showColumnMappingDialog(
 
 		const ignoreOpt = document.createElement('option');
 		ignoreOpt.value = 'ignore';
-		ignoreOpt.textContent = lang === 'zh-Hans' ? '忽略' : 'Ignore';
+		ignoreOpt.textContent = t('ignore');
 		if (currentMapping?.targetField === 'ignore') ignoreOpt.selected = true;
 		select.appendChild(ignoreOpt);
 
@@ -78,7 +78,7 @@ export function showColumnMappingDialog(
 
 	const hint = document.createElement('div');
 	hint.className = 'dialog-hint';
-	hint.textContent = '选择原始列名对应的字段，选择"忽略"将不处理该列';
+	hint.textContent = t('selectMappingHint');
 	body.appendChild(hint);
 
 	dialog.appendChild(body);
@@ -86,8 +86,8 @@ export function showColumnMappingDialog(
 	const footer = document.createElement('div');
 	footer.className = 'dialog-footer';
 	footer.innerHTML = `
-		<button class="btn btn-secondary dialog-cancel">取消</button>
-		<button class="btn btn-primary dialog-confirm">确认</button>
+		<button class="btn btn-secondary dialog-cancel">${t('cancel')}</button>
+		<button class="btn btn-primary dialog-confirm">${t('confirm')}</button>
 	`;
 	dialog.appendChild(footer);
 
@@ -148,10 +148,10 @@ export function showHeaderDetailDialog(oldFile: BomFile | null, newFile: BomFile
 	const diffLabels = columns.filter(c => c.oldVal !== c.newVal).map(c => c.label);
 
 	const summaryText = diffLabels.length > 0
-		? `概述：旧文件与新文件在【${diffLabels.join('、')}】列的原始表头名称存在差异`
-		: '概述：旧文件与新文件的表头名称完全一致，无差异';
+		? t('headerDiff', { columns: diffLabels.join('、') })
+		: t('headerSame');
 
-	_showCompareDialog('新旧Bom表头差异详情', '旧文件表头', '新文件表头', columns, summaryText);
+	_showCompareDialog(t('compareHeaderDiff'), t('oldHeader'), t('newHeader'), columns, summaryText);
 }
 
 export function showRowDetailDialog(rowDiff: RowDiff): void {
@@ -160,12 +160,12 @@ export function showRowDetailDialog(rowDiff: RowDiff): void {
 	const lang = getLanguage();
 	const oldRow = rowDiff.oldRow;
 	const newRow = rowDiff.newRow;
-	const designator = oldRow?.designator || newRow?.designator || '未知';
+	const designator = oldRow?.designator || newRow?.designator || t('unknown');
 
 	if (rowDiff.type === 'added' || rowDiff.type === 'removed') {
 		const row = rowDiff.type === 'added' ? newRow : oldRow;
-		const typeLabel = rowDiff.type === 'added' ? '新增' : '缺失';
-		const fileLabel = rowDiff.type === 'added' ? '新文件' : '旧文件';
+		const typeLabel = rowDiff.type === 'added' ? t('added') : t('removed');
+		const fileLabel = rowDiff.type === 'added' ? t('newFile') : t('oldFile');
 		const rowNum = row ? row.rowIndex + 2 : '?';
 
 		const columns = getActiveColumns().map(col => ({
@@ -174,8 +174,8 @@ export function showRowDetailDialog(rowDiff: RowDiff): void {
 			newVal: rowDiff.type === 'added' ? String(row?.[col.field] || '') : '',
 		}));
 
-		const summaryText = `概述：${fileLabel}独有数据行 ，位号 = ${designator}，行号 = ${rowNum}`;
-		_showCompareDialog(`新旧Bom行差异详情`, rowDiff.type === 'removed' ? `旧文件第${rowNum}行` : '', rowDiff.type === 'added' ? `新文件第${rowNum}行` : '', columns, summaryText, typeLabel);
+		const summaryText = t('rowDiffSummary', { file: fileLabel, designator, rowNum });
+		_showCompareDialog(t('compareRowDiff'), rowDiff.type === 'removed' ? `${t('oldFile')}第${rowNum}行` : '', rowDiff.type === 'added' ? `${t('newFile')}第${rowNum}行` : '', columns, summaryText, typeLabel);
 	} else {
 		const diffFieldSet = new Set(rowDiff.cellDiffs.map(d => d.field));
 		const oldNum = oldRow ? oldRow.rowIndex + 2 : '?';
@@ -190,10 +190,10 @@ export function showRowDetailDialog(rowDiff: RowDiff): void {
 
 		const diffLabels = columns.filter(c => c.isDiff).map(c => c.label);
 		const summaryText = diffLabels.length > 0
-			? `概述：旧文件第${oldNum}行与新文件第${newNum}行有相同的位号(${designator})，但【${diffLabels.join('、')}】列的数据存在差异`
-			: `概述：旧文件第${oldNum}行与新文件第${newNum}行位号(${designator})的所有数据完全一致`;
+			? t('rowDiffDetail', { oldNum, newNum, designator, columns: diffLabels.join('、') })
+			: t('rowDiffSame', { oldNum, newNum, designator });
 
-		_showCompareDialog('新旧Bom行差异详情', `旧文件第${oldNum}行`, `新文件第${newNum}行`, columns, summaryText);
+		_showCompareDialog(t('compareRowDiff'), `${t('oldFile')}第${oldNum}行`, `${t('newFile')}第${newNum}行`, columns, summaryText);
 	}
 }
 
@@ -222,7 +222,7 @@ function _showCompareDialog(
 	h2.style.cssText = 'font-size: 13px; font-weight: 600; margin: 0; color: var(--text);';
 	const closeBtn = document.createElement('button');
 	closeBtn.className = 'dialog-close';
-	closeBtn.title = '关闭';
+	closeBtn.title = t('close');
 	closeBtn.textContent = '×';
 	closeBtn.style.cssText = 'position: static; width: 22px; height: 22px; line-height: 22px; font-size: 16px; padding: 0; display: flex; align-items: center; justify-content: center;';
 	dialogHeader.appendChild(h2);
@@ -308,7 +308,7 @@ function _showCompareDialog(
 	footer.style.cssText = 'padding: 10px 16px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; flex-shrink: 0;';
 	const footerCloseBtn = document.createElement('button');
 	footerCloseBtn.className = 'btn btn-secondary';
-	footerCloseBtn.textContent = '关闭';
+	footerCloseBtn.textContent = t('close');
 	footer.appendChild(footerCloseBtn);
 	dialog.appendChild(footer);
 

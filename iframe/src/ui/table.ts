@@ -154,7 +154,7 @@ function createRawHeaderRow(bomFile: BomFile, side: 'old' | 'new' = 'old'): HTML
 		actionTd.style.zIndex = '1';
 		const btn = document.createElement('button');
 		btn.className = 'btn-detail';
-		btn.textContent = '详情';
+		btn.textContent = t('detail');
 		btn.addEventListener('click', () => {
 			showHeaderDetailDialog(state.oldFile, state.newFile);
 		});
@@ -304,7 +304,7 @@ function renderDiffTable(container: HTMLElement, rows: RowDiff[], side: 'old' | 
 
 	if (side === 'new') {
 		const actionTh = document.createElement('th');
-		actionTh.textContent = '操作';
+		actionTh.textContent = t('action');
 		actionTh.style.width = '60px';
 		actionTh.style.position = 'sticky';
 		actionTh.style.right = '0';
@@ -419,7 +419,7 @@ function createDiffRow(row: BomRow | null, rowDiff: RowDiff, side: 'old' | 'new'
 		if (rowDiff.type !== 'same' && (rowDiff.oldRow || rowDiff.newRow)) {
 			const btn = document.createElement('button');
 			btn.className = 'btn-detail';
-			btn.textContent = '详情';
+			btn.textContent = t('detail');
 			btn.addEventListener('click', () => showDetailDialog(rowDiff));
 			actionTd.appendChild(btn);
 		}

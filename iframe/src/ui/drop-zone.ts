@@ -31,7 +31,7 @@ function setupDropZone(zoneId: string, side: 'old' | 'new'): void {
 
 		const files = e.dataTransfer?.files;
 		if (!files || files.length === 0) {
-			showToast('未检测到文件，请重试', 'warning');
+			showToast(t('noFileDetected'), 'warning');
 			return;
 		}
 
@@ -39,7 +39,7 @@ function setupDropZone(zoneId: string, side: 'old' | 'new'): void {
 		if (!isSupportedFile(file)) {
 			zone.classList.add('drag-reject');
 			setTimeout(() => zone.classList.remove('drag-reject'), 2000);
-			showToast('不支持该文件格式，请使用 CSV/TXT/XLS/XLSX 文件', 'error');
+			showToast(t('unsupportedFormat'), 'error');
 			return;
 		}
 
@@ -76,13 +76,13 @@ function setupFileRowDrop(side: 'old' | 'new'): void {
 
 		const files = (e as DragEvent).dataTransfer?.files;
 		if (!files || files.length === 0) {
-			showToast('未检测到文件，请重试', 'warning');
+			showToast(t('noFileDetected'), 'warning');
 			return;
 		}
 
 		const file = files[0];
 		if (!isSupportedFile(file)) {
-			showToast('不支持该文件格式，请使用 CSV/TXT/XLS/XLSX 文件', 'error');
+			showToast(t('unsupportedFormat'), 'error');
 			return;
 		}
 
@@ -115,13 +115,13 @@ function setupTableDrop(tableId: string, side: 'old' | 'new'): void {
 
 		const files = (e as DragEvent).dataTransfer?.files;
 		if (!files || files.length === 0) {
-			showToast('未检测到文件，请重试', 'warning');
+			showToast(t('noFileDetected'), 'warning');
 			return;
 		}
 
 		const file = files[0];
 		if (!isSupportedFile(file)) {
-			showToast('不支持该文件格式，请使用 CSV/TXT/XLS/XLSX 文件', 'error');
+			showToast(t('unsupportedFormat'), 'error');
 			return;
 		}
 
@@ -135,7 +135,7 @@ export async function loadFile(file: File, side: 'old' | 'new'): Promise<void> {
 	pathInput.title = file.name;
 
 	try {
-		showLoading(`正在解析 ${file.name}...`);
+		showLoading(t('parsingFile', { filename: file.name }));
 		updateLoadingProgress(20);
 
 		const bomFile = await parseFile(file);
@@ -143,7 +143,7 @@ export async function loadFile(file: File, side: 'old' | 'new'): Promise<void> {
 
 		if (bomFile.rows.length === 0) {
 			hideLoading();
-			showToast('文件中未找到有效的 BOM 数据，请检查文件内容', 'warning');
+			showToast(t('noValidData'), 'warning');
 			return;
 		}
 
@@ -166,12 +166,12 @@ export async function loadFile(file: File, side: 'old' | 'new'): Promise<void> {
 		renderTable(tableContainer, bomFile, side);
 
 		hideLoading();
-		showToast(`加载成功: ${file.name}（${bomFile.rows.length + 1} 行）`, 'success');
+		showToast(t('loadSuccess', { filename: file.name, rowCount: bomFile.rows.length + 1 }), 'success');
 	} catch (err) {
 		hideLoading();
 		const errMsg = err instanceof Error ? err.message : String(err);
 		console.error('loadFile error:', err);
-		showToast(`加载失败: ${errMsg}`, 'error');
+		showToast(t('loadFailed', { error: errMsg }), 'error');
 	}
 }
 
