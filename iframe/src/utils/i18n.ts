@@ -2,6 +2,7 @@ import zhHans from '../locales/zh-Hans';
 import en from '../locales/en';
 import { renderSummary } from '../ui/summary';
 import { state } from '../ui/state';
+import { getActiveColumns } from '../core/column-config';
 
 export type Language = 'zh-Hans' | 'en';
 
@@ -80,6 +81,33 @@ function updateAllText(): void {
 	if (state.diffResult) {
 		renderSummary(state.diffResult);
 	}
+
+	// Update table header column names
+	const lang = currentLanguage;
+	const activeColumns = getActiveColumns();
+
+	// Update preset header cells in tables
+	document.querySelectorAll('.bom-table thead .preset-header-row th').forEach(th => {
+		const text = th.textContent;
+		if (!text || text === '#') return;
+
+		// Try to find which column this header represents by matching against both labels
+		const standardCol = activeColumns.find(col => col.label === text || col.labelZh === text);
+		if (standardCol) {
+			th.textContent = lang === 'zh-Hans' ? standardCol.labelZh : standardCol.label;
+		}
+	});
+
+	// Update mapped header cells
+	document.querySelectorAll('.bom-table thead th.mapped').forEach(th => {
+		const text = th.textContent;
+		if (!text) return;
+
+		const standardCol = activeColumns.find(col => col.label === text || col.labelZh === text);
+		if (standardCol) {
+			th.textContent = lang === 'zh-Hans' ? standardCol.labelZh : standardCol.label;
+		}
+	});
 }
 
 export function addI18nSupport(): void {
