@@ -72,6 +72,8 @@ export default {
 
 	// Column settings
 	columnSettings: '列名设置',
+	columnMapping: '列名映射',
+	columnMappingTooltip: '配置列名映射规则',
 	addColumn: '添加字段',
 	addAlias: '添加别名',
 	deleteField: '删除字段',

@@ -72,6 +72,8 @@ export default {
 
 	// Column settings
 	columnSettings: 'Column Settings',
+	columnMapping: 'Column Mapping',
+	columnMappingTooltip: 'Configure column name mapping rules',
 	addColumn: 'Add Field',
 	addAlias: 'Add alias',
 	deleteField: 'Delete',
