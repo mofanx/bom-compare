@@ -20,14 +20,5 @@ export function initHotkeys(): void {
 			const searchInput = document.getElementById('search-input') as HTMLInputElement;
 			searchInput?.focus();
 		}
-
-		if (e.key === 'Escape') {
-			const searchInput = document.getElementById('search-input') as HTMLInputElement;
-			if (document.activeElement === searchInput) {
-				searchInput.value = '';
-				searchInput.blur();
-				searchInput.dispatchEvent(new Event('input'));
-			}
-		}
 	});
 }

@@ -445,7 +445,7 @@ function getRowClass(type: string, side: 'old' | 'new'): string {
 	}
 }
 
-function filterRows(rows: RowDiff[]): RowDiff[] {
+export function filterRows(rows: RowDiff[]): RowDiff[] {
 	let filtered = rows;
 
 	if (state.filter !== 'all') {

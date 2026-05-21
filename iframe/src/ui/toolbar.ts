@@ -1,4 +1,4 @@
-import type { FilterType } from '../types';
+import type { FilterType, RowDiff } from '../types';
 import { state } from './state';
 import { parseFile } from '../core/parser';
 import { compare } from '../core/comparator';
@@ -6,7 +6,7 @@ import { exportReport, exportBomFile } from '../core/exporter';
 import { showLoading, updateLoadingProgress, hideLoading } from './loading';
 import { showToast } from './drop-zone';
 import { t } from '../utils/i18n';
-import { renderDiffResult } from './table';
+import { renderDiffResult, filterRows } from './table';
 import { loadFile } from './drop-zone';
 import { commitEditing } from './editable';
 
@@ -49,11 +49,13 @@ export function initToolbar(): void {
 
 	filterSelect.addEventListener('change', () => {
 		state.filter = filterSelect.value as FilterType;
+		state.currentDiffIndex = -1;
 		if (state.diffResult) renderDiffResult();
 	});
 
 	searchInput.addEventListener('input', () => {
 		state.searchKeyword = searchInput.value;
+		state.currentDiffIndex = -1;
 		if (state.diffResult) renderDiffResult();
 	});
 
@@ -61,6 +63,7 @@ export function initToolbar(): void {
 		if (state.oldFile && state.newFile) {
 			const result = compare(state.oldFile, state.newFile);
 			state.diffResult = result;
+			state.currentDiffIndex = -1;
 			renderDiffResult();
 		}
 	});
@@ -112,6 +115,7 @@ async function executeCompare(): Promise<void> {
 
 		const result = compare(state.oldFile, state.newFile);
 		state.diffResult = result;
+		state.currentDiffIndex = -1;
 
 		updateLoadingProgress(100);
 		hideLoading();
@@ -131,8 +135,15 @@ function navigateDiff(direction: 'prev' | 'next'): void {
 		return;
 	}
 
-	const diffIndices = state.diffResult.rows
-		.map((row, i) => row.type !== 'same' ? i : -1)
+	const filteredRows = filterRows(state.diffResult.rows);
+	
+	// 获取所有差异行的原始索引
+	const diffIndices = filteredRows
+		.map((row, filteredIndex) => {
+			// 找到该行在原始 diffResult.rows 中的索引
+			const originalIndex = state.diffResult!.rows.indexOf(row);
+			return row.type !== 'same' ? originalIndex : -1;
+		})
 		.filter(i => i >= 0);
 
 	if (diffIndices.length === 0) {
@@ -140,25 +151,59 @@ function navigateDiff(direction: 'prev' | 'next'): void {
 		return;
 	}
 
+	// 找到当前索引在 diffIndices 中的位置
+	const currentIndexInDiff = diffIndices.indexOf(state.currentDiffIndex);
+
 	if (direction === 'next') {
-		const next = diffIndices.find(i => i > state.currentDiffIndex);
-		state.currentDiffIndex = next !== undefined ? next : diffIndices[0];
+		// 如果当前不在差异列表中，或已经是最后一个，则跳转到第一个
+		if (currentIndexInDiff === -1 || currentIndexInDiff === diffIndices.length - 1) {
+			state.currentDiffIndex = diffIndices[0];
+		} else {
+			state.currentDiffIndex = diffIndices[currentIndexInDiff + 1];
+		}
 	} else {
-		const prev = [...diffIndices].reverse().find(i => i < state.currentDiffIndex);
-		state.currentDiffIndex = prev !== undefined ? prev : diffIndices[diffIndices.length - 1];
+		// 如果当前不在差异列表中，或已经是第一个，则跳转到最后一个
+		if (currentIndexInDiff === -1 || currentIndexInDiff === 0) {
+			state.currentDiffIndex = diffIndices[diffIndices.length - 1];
+		} else {
+			state.currentDiffIndex = diffIndices[currentIndexInDiff - 1];
+		}
 	}
 
 	scrollToRow(state.currentDiffIndex);
 }
 
-function scrollToRow(index: number): void {
-	const leftTable = document.getElementById('table-left');
-	const rightTable = document.getElementById('table-right');
-	const rowHeight = 34;
-	const scrollTop = index * rowHeight;
+function scrollToRow(originalIndex: number): void {
+	const filteredRows = filterRows(state.diffResult!.rows);
+	
+	// 找到原始索引在过滤后数组中的位置
+	const filteredIndex = filteredRows.findIndex(row => {
+		const originalIdx = state.diffResult!.rows.indexOf(row);
+		return originalIdx === originalIndex;
+	});
 
-	if (leftTable) leftTable.scrollTop = scrollTop;
-	if (rightTable) rightTable.scrollTop = scrollTop;
+	if (filteredIndex === -1) return;
+
+	highlightCurrentDiffRow(filteredIndex);
+
+	const container = document.getElementById('table-left');
+	if (!container) return;
+
+	const row = container.querySelector(`tr[data-index="${filteredIndex}"]`) as HTMLElement;
+	if (!row) return;
+
+	const containerRect = container.getBoundingClientRect();
+	const rowRect = row.getBoundingClientRect();
+	const offset = rowRect.top - containerRect.top + container.scrollTop;
+	container.scrollTop = offset - container.clientHeight / 2 + row.offsetHeight / 2;
+}
+
+function highlightCurrentDiffRow(index: number): void {
+	document.querySelectorAll('.current-diff-row').forEach(el => el.classList.remove('current-diff-row'));
+
+	const selector = `tr[data-index="${index}"]`;
+	document.getElementById('table-left')?.querySelector(selector)?.classList.add('current-diff-row');
+	document.getElementById('table-right')?.querySelector(selector)?.classList.add('current-diff-row');
 }
 
 async function openFileDialog(side: 'old' | 'new'): Promise<void> {
