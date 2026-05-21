@@ -55,6 +55,15 @@ export interface ColumnMapping {
 
 export type FilterType = 'all' | 'diff' | 'added' | 'removed' | 'same';
 
+export interface FieldConfig {
+	field: string;
+	label: string;
+	labelZh: string;
+	aliases: string[];
+	isRequired: boolean;
+}
+
+/** Fallback constant — use getActiveColumns() from column-config for dynamic config */
 export const STANDARD_COLUMNS: Array<{ field: keyof BomRow; label: string; labelZh: string }> = [
 	{ field: 'designator', label: 'Designator', labelZh: '位号' },
 	{ field: 'footprint', label: 'Footprint', labelZh: '封装' },

@@ -1,5 +1,6 @@
 import type { BomFile, BomRow, ColumnMapping } from '../../types';
 import { mapColumns } from '../column-mapper';
+import { getColumnConfig } from '../column-config';
 
 const SEPARATORS = ['\t', ',', ';', '|'];
 
@@ -79,7 +80,9 @@ export function parseCSV(text: string, fileName: string): BomFile {
 }
 
 function findHeaderLine(lines: string[]): number {
-	const keywords = ['designator', '位号', 'ref', 'reference'];
+	const config = getColumnConfig();
+	const designatorField = config.find(f => f.field === 'designator');
+	const keywords = designatorField ? designatorField.aliases : ['designator', '位号', 'ref', 'reference'];
 	for (let i = 0; i < Math.min(5, lines.length); i++) {
 		const lower = lines[i].toLowerCase();
 		if (keywords.some(kw => lower.includes(kw))) {
@@ -90,16 +93,11 @@ function findHeaderLine(lines: string[]): number {
 }
 
 function createBomRow(fields: string[], mappings: ColumnMapping[], rowIndex: number): BomRow {
-	const row: BomRow = {
-		rowIndex,
-		designator: '',
-		footprint: '',
-		quantity: '',
-		manufacturer: '',
-		partNumber: '',
-		value: '',
-		description: '',
-	};
+	const config = getColumnConfig();
+	const row: BomRow = { rowIndex } as BomRow;
+	for (const f of config) {
+		(row as any)[f.field] = '';
+	}
 
 	for (let i = 0; i < mappings.length && i < fields.length; i++) {
 		const target = mappings[i].targetField;

@@ -6,6 +6,7 @@ import { exportReport, exportBomFile } from '../core/exporter';
 import { showLoading, updateLoadingProgress, hideLoading } from './loading';
 import { showToast } from './drop-zone';
 import { t } from '../utils/i18n';
+import { showColumnSettingsDialog } from './column-settings-dialog';
 import { renderDiffResult, filterRows } from './table';
 import { loadFile } from './drop-zone';
 import { commitEditing } from './editable';
@@ -23,6 +24,7 @@ export function initToolbar(): void {
 	const btnNextDiff = document.getElementById('btn-next-diff')!;
 	const filterSelect = document.getElementById('filter-select') as HTMLSelectElement;
 	const searchInput = document.getElementById('search-input') as HTMLInputElement;
+	const btnColumnSettings = document.getElementById('btn-column-settings')!;
 
 	oldImport.addEventListener('click', () => openFileDialog('old'));
 	newImport.addEventListener('click', () => openFileDialog('new'));
@@ -30,6 +32,8 @@ export function initToolbar(): void {
 	newSave.addEventListener('click', () => saveFile('new'));
 	oldClear.addEventListener('click', () => clearPanel('old'));
 	newClear.addEventListener('click', () => clearPanel('new'));
+
+	btnColumnSettings.addEventListener('click', () => showColumnSettingsDialog());
 
 	btnCompare.addEventListener('click', executeCompare);
 	btnExport.addEventListener('click', async () => {

@@ -69,4 +69,25 @@ export default {
 	// Column mapping
 	mappingUpdated: '列映射已更新',
 	clickToRemap: '单击修改映射',
+
+	// Column settings
+	columnSettings: '列名设置',
+	addColumn: '添加字段',
+	addAlias: '添加别名',
+	deleteField: '删除字段',
+	resetDefaults: '恢复默认配置',
+	resetConfirm: '确认恢复默认列名配置？自定义字段和别名将丢失。',
+	fieldRequired: '必填',
+	fieldName: '字段标识',
+	fieldLabelEn: '英文标签',
+	fieldLabelZh: '中文标签',
+	initialAlias: '初始别名',
+	configSaveSuccess: '配置已保存，已重新识别文件',
+	aliasEmpty: '别名不能为空',
+	duplicateAlias: '别名已存在',
+	fieldIdExists: '字段标识已存在',
+	fieldIdInvalid: '字段标识仅支持英文、数字和下划线',
+	needDesignator: '至少需要保留位号字段',
+	needDesignatorAlias: '位号字段至少需要一个别名',
+	save: '保存',
 };

@@ -69,4 +69,25 @@ export default {
 	// Column mapping
 	mappingUpdated: 'Column mapping updated',
 	clickToRemap: 'Click to change mapping',
+
+	// Column settings
+	columnSettings: 'Column Settings',
+	addColumn: 'Add Field',
+	addAlias: 'Add alias',
+	deleteField: 'Delete',
+	resetDefaults: 'Reset Defaults',
+	resetConfirm: 'Reset to default column config? Custom fields and aliases will be lost.',
+	fieldRequired: 'Required',
+	fieldName: 'Field ID',
+	fieldLabelEn: 'English Label',
+	fieldLabelZh: 'Chinese Label',
+	initialAlias: 'Initial alias',
+	configSaveSuccess: 'Config saved, files re-mapped',
+	aliasEmpty: 'Alias cannot be empty',
+	duplicateAlias: 'Alias already exists',
+	fieldIdExists: 'Field ID already exists',
+	fieldIdInvalid: 'Field ID must be alphanumeric with underscores',
+	needDesignator: 'Designator field is required',
+	needDesignatorAlias: 'Designator needs at least one alias',
+	save: 'Save',
 };

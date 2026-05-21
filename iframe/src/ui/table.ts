@@ -1,5 +1,6 @@
 import type { BomFile, BomRow, RowDiff } from '../types';
-import { STANDARD_COLUMNS, getColumnLetter } from '../types';
+import { getColumnLetter } from '../types';
+import { getActiveColumns } from '../core/column-config';
 import { state } from './state';
 import { initSyncScroll } from './layout';
 import { showRowDetailDialog, showHeaderDetailDialog } from './dialog';
@@ -107,7 +108,7 @@ function createPresetHeaderTh(columnIndex: number, bomFile: BomFile, side: 'old'
 		th.style.color = 'var(--text-muted)';
 		th.style.paddingLeft = '10px';
 	} else {
-		const standardCol = STANDARD_COLUMNS.find(col => col.field === mapping.targetField);
+		const standardCol = getActiveColumns().find(col => col.field === mapping.targetField);
 		th.textContent = standardCol ? (lang === 'zh-Hans' ? standardCol.labelZh : standardCol.label) : String(mapping.targetField);
 		th.classList.add('mapped');
 	}
@@ -185,7 +186,7 @@ function showMappingDropdown(th: HTMLTableCellElement, columnIndex: number, curr
 		}
 	});
 
-	STANDARD_COLUMNS.forEach(col => {
+	getActiveColumns().forEach(col => {
 		if (matchedFields.has(String(col.field))) return;
 
 		const option = document.createElement('option');
@@ -240,7 +241,7 @@ function restorePresetHeaderText(th: HTMLTableCellElement, columnIndex: number, 
 		th.style.background = 'var(--bg-hover)';
 		th.style.color = 'var(--text-muted)';
 	} else {
-		const standardCol = STANDARD_COLUMNS.find(col => col.field === mapping.targetField);
+		const standardCol = getActiveColumns().find(col => col.field === mapping.targetField);
 		th.textContent = standardCol ? (lang === 'zh-Hans' ? standardCol.labelZh : standardCol.label) : String(mapping.targetField);
 		th.classList.remove('unmapped');
 		th.classList.add('mapped');
@@ -292,7 +293,7 @@ function renderDiffTable(container: HTMLElement, rows: RowDiff[], side: 'old' | 
 			presetHeaderRow.appendChild(createPresetHeaderTh(i, bomFile, side));
 		}
 	} else {
-		for (const col of STANDARD_COLUMNS) {
+		for (const col of getActiveColumns()) {
 			const th = document.createElement('th');
 			th.textContent = col.label;
 			th.style.width = '80px';
@@ -396,7 +397,7 @@ function createDiffRow(row: BomRow | null, rowDiff: RowDiff, side: 'old' | 'new'
 			tr.appendChild(td);
 		}
 	} else {
-		for (const col of STANDARD_COLUMNS) {
+		for (const col of getActiveColumns()) {
 			const td = document.createElement('td');
 			td.textContent = row ? String(row[col.field] || '') : '';
 			td.title = row ? String(row[col.field] || '') : '';

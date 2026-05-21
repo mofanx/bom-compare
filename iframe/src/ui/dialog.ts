@@ -1,5 +1,5 @@
 import type { ColumnMapping, BomFile, RowDiff } from '../types';
-import { STANDARD_COLUMNS } from '../types';
+import { getActiveColumns } from '../core/column-config';
 import { getLanguage } from '../utils/i18n';
 
 let overlay: HTMLElement | null = null;
@@ -11,6 +11,7 @@ export function showColumnMappingDialog(
 ): void {
 	closeDialog();
 
+	const lang = getLanguage();
 	overlay = document.createElement('div');
 	overlay.className = 'dialog-overlay';
 
@@ -52,16 +53,21 @@ export function showColumnMappingDialog(
 		const tdTarget = document.createElement('td');
 		const select = document.createElement('select');
 		select.className = 'mapping-select';
-		select.innerHTML = `
-			<option value="ignore" ${currentMapping?.targetField === 'ignore' ? 'selected' : ''}>忽略</option>
-			<option value="designator" ${currentMapping?.targetField === 'designator' ? 'selected' : ''}>位号</option>
-			<option value="footprint" ${currentMapping?.targetField === 'footprint' ? 'selected' : ''}>封装</option>
-			<option value="quantity" ${currentMapping?.targetField === 'quantity' ? 'selected' : ''}>数量</option>
-			<option value="manufacturer" ${currentMapping?.targetField === 'manufacturer' ? 'selected' : ''}>制造商</option>
-			<option value="partNumber" ${currentMapping?.targetField === 'partNumber' ? 'selected' : ''}>Part Number</option>
-			<option value="value" ${currentMapping?.targetField === 'value' ? 'selected' : ''}>Value</option>
-			<option value="description" ${currentMapping?.targetField === 'description' ? 'selected' : ''}>Description</option>
-		`;
+
+		const ignoreOpt = document.createElement('option');
+		ignoreOpt.value = 'ignore';
+		ignoreOpt.textContent = lang === 'zh-Hans' ? '忽略' : 'Ignore';
+		if (currentMapping?.targetField === 'ignore') ignoreOpt.selected = true;
+		select.appendChild(ignoreOpt);
+
+		for (const col of getActiveColumns()) {
+			const opt = document.createElement('option');
+			opt.value = col.field;
+			opt.textContent = lang === 'zh-Hans' ? col.labelZh : col.label;
+			if (currentMapping?.targetField === col.field) opt.selected = true;
+			select.appendChild(opt);
+		}
+
 		tdTarget.appendChild(select);
 		tr.appendChild(tdTarget);
 
@@ -128,7 +134,7 @@ export function showHeaderDetailDialog(oldFile: BomFile | null, newFile: BomFile
 	for (const m of oldMappings) { if (m.targetField !== 'ignore') mappedFields.add(String(m.targetField)); }
 	for (const m of newMappings) { if (m.targetField !== 'ignore') mappedFields.add(String(m.targetField)); }
 
-	const columns = STANDARD_COLUMNS
+	const columns = getActiveColumns()
 		.filter(col => mappedFields.has(String(col.field)))
 		.map(col => {
 			const fieldName = String(col.field);
@@ -162,7 +168,7 @@ export function showRowDetailDialog(rowDiff: RowDiff): void {
 		const fileLabel = rowDiff.type === 'added' ? '新文件' : '旧文件';
 		const rowNum = row ? row.rowIndex + 2 : '?';
 
-		const columns = STANDARD_COLUMNS.map(col => ({
+		const columns = getActiveColumns().map(col => ({
 			label: lang === 'zh-Hans' ? col.labelZh : col.label,
 			oldVal: rowDiff.type === 'removed' ? String(row?.[col.field] || '') : '',
 			newVal: rowDiff.type === 'added' ? String(row?.[col.field] || '') : '',
@@ -175,7 +181,7 @@ export function showRowDetailDialog(rowDiff: RowDiff): void {
 		const oldNum = oldRow ? oldRow.rowIndex + 2 : '?';
 		const newNum = newRow ? newRow.rowIndex + 2 : '?';
 
-		const columns = STANDARD_COLUMNS.map(col => ({
+		const columns = getActiveColumns().map(col => ({
 			label: lang === 'zh-Hans' ? col.labelZh : col.label,
 			oldVal: oldRow ? String(oldRow[col.field] || '') : '',
 			newVal: newRow ? String(newRow[col.field] || '') : '',
