@@ -49,13 +49,13 @@ export function initToolbar(): void {
 
 	filterSelect.addEventListener('change', () => {
 		state.filter = filterSelect.value as FilterType;
-		state.currentDiffIndex = -1;
+		state.selectedRowIndex = -1;
 		if (state.diffResult) renderDiffResult();
 	});
 
 	searchInput.addEventListener('input', () => {
 		state.searchKeyword = searchInput.value;
-		state.currentDiffIndex = -1;
+		state.selectedRowIndex = -1;
 		if (state.diffResult) renderDiffResult();
 	});
 
@@ -63,8 +63,27 @@ export function initToolbar(): void {
 		if (state.oldFile && state.newFile) {
 			const result = compare(state.oldFile, state.newFile);
 			state.diffResult = result;
-			state.currentDiffIndex = -1;
+			state.selectedRowIndex = -1;
 			renderDiffResult();
+		}
+	});
+
+	// 点击表格外区域时取消选中
+	document.addEventListener('click', (e) => {
+		const target = e.target as HTMLElement;
+		const tableLeft = document.getElementById('table-left');
+		const tableRight = document.getElementById('table-right');
+		
+		// 如果点击的不是表格内的行，则取消选中
+		if (state.selectedRowIndex !== -1 && 
+		    !target.closest('tr[data-index]') &&
+		    !target.closest('.btn') &&
+		    !target.closest('select') &&
+		    !target.closest('input')) {
+			state.selectedRowIndex = -1;
+			document.querySelectorAll('.selected-row, .current-diff-row').forEach(el => {
+				el.classList.remove('selected-row', 'current-diff-row');
+			});
 		}
 	});
 }
@@ -115,7 +134,7 @@ async function executeCompare(): Promise<void> {
 
 		const result = compare(state.oldFile, state.newFile);
 		state.diffResult = result;
-		state.currentDiffIndex = -1;
+		state.selectedRowIndex = -1;
 
 		updateLoadingProgress(100);
 		hideLoading();
@@ -151,26 +170,36 @@ function navigateDiff(direction: 'prev' | 'next'): void {
 		return;
 	}
 
-	// 找到当前索引在 diffIndices 中的位置
-	const currentIndexInDiff = diffIndices.indexOf(state.currentDiffIndex);
+	// 找到当前选中索引在 diffIndices 中的位置
+	const currentIndexInDiff = diffIndices.indexOf(state.selectedRowIndex);
 
 	if (direction === 'next') {
-		// 如果当前不在差异列表中，或已经是最后一个，则跳转到第一个
-		if (currentIndexInDiff === -1 || currentIndexInDiff === diffIndices.length - 1) {
-			state.currentDiffIndex = diffIndices[0];
+		if (currentIndexInDiff === -1) {
+			// 如果选中的行不是差异行，从选中行之后找第一个差异行
+			const nextDiff = diffIndices.find(i => i > state.selectedRowIndex);
+			state.selectedRowIndex = nextDiff !== undefined ? nextDiff : diffIndices[0];
+		} else if (currentIndexInDiff === diffIndices.length - 1) {
+			// 如果已经是最后一个差异行，跳转到第一个
+			state.selectedRowIndex = diffIndices[0];
 		} else {
-			state.currentDiffIndex = diffIndices[currentIndexInDiff + 1];
+			// 从当前差异行的下一个差异行开始
+			state.selectedRowIndex = diffIndices[currentIndexInDiff + 1];
 		}
 	} else {
-		// 如果当前不在差异列表中，或已经是第一个，则跳转到最后一个
-		if (currentIndexInDiff === -1 || currentIndexInDiff === 0) {
-			state.currentDiffIndex = diffIndices[diffIndices.length - 1];
+		if (currentIndexInDiff === -1) {
+			// 如果选中的行不是差异行，从选中行之前找第一个差异行
+			const prevDiff = [...diffIndices].reverse().find(i => i < state.selectedRowIndex);
+			state.selectedRowIndex = prevDiff !== undefined ? prevDiff : diffIndices[diffIndices.length - 1];
+		} else if (currentIndexInDiff === 0) {
+			// 如果已经是第一个差异行，跳转到最后一个
+			state.selectedRowIndex = diffIndices[diffIndices.length - 1];
 		} else {
-			state.currentDiffIndex = diffIndices[currentIndexInDiff - 1];
+			// 从当前差异行的上一个差异行开始
+			state.selectedRowIndex = diffIndices[currentIndexInDiff - 1];
 		}
 	}
 
-	scrollToRow(state.currentDiffIndex);
+	scrollToRow(state.selectedRowIndex);
 }
 
 function scrollToRow(originalIndex: number): void {
@@ -199,11 +228,13 @@ function scrollToRow(originalIndex: number): void {
 }
 
 function highlightCurrentDiffRow(index: number): void {
-	document.querySelectorAll('.current-diff-row').forEach(el => el.classList.remove('current-diff-row'));
+	document.querySelectorAll('.selected-row, .current-diff-row').forEach(el => {
+		el.classList.remove('selected-row', 'current-diff-row');
+	});
 
 	const selector = `tr[data-index="${index}"]`;
-	document.getElementById('table-left')?.querySelector(selector)?.classList.add('current-diff-row');
-	document.getElementById('table-right')?.querySelector(selector)?.classList.add('current-diff-row');
+	document.getElementById('table-left')?.querySelector(selector)?.classList.add('selected-row');
+	document.getElementById('table-right')?.querySelector(selector)?.classList.add('selected-row');
 }
 
 async function openFileDialog(side: 'old' | 'new'): Promise<void> {

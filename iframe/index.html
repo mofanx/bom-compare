@@ -581,15 +581,22 @@
 				outline-offset: -1px;
 			}
 
+			.selected-row td {
+				outline: 1px solid var(--primary);
+				outline-offset: -1px;
+				background: var(--primary-light);
+			}
+
 			.current-diff-row td {
 				outline: 1px solid var(--primary);
 				outline-offset: -1px;
+				background: var(--primary-light);
 				animation: diff-flash 0.6s ease-out;
 			}
 
 			@keyframes diff-flash {
 				0% { background: var(--primary); opacity: 0.4; }
-				100% { opacity: 1; }
+				100% { background: var(--primary-light); opacity: 1; }
 			}
 
 			.btn-detail {

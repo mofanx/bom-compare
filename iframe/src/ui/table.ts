@@ -433,6 +433,11 @@ function createDiffRow(row: BomRow | null, rowDiff: RowDiff, side: 'old' | 'new'
 		clearLinkedHighlight();
 	});
 
+	// Click to select row
+	tr.addEventListener('click', () => {
+		selectRow(index);
+	});
+
 	return tr;
 }
 
@@ -487,13 +492,18 @@ export function filterRows(rows: RowDiff[]): RowDiff[] {
 }
 
 function highlightLinkedRow(index: number, targetSide: 'old' | 'new'): void {
-	const containerId = targetSide === 'old' ? 'table-left' : 'table-right';
-	const container = document.getElementById(containerId);
-	if (!container) return;
-
-	const targetRow = container.querySelector(`tr[data-index="${index}"]`);
-	if (targetRow) {
-		targetRow.classList.add('row-highlight');
+	// 同时高亮两侧的行
+	const leftContainer = document.getElementById('table-left');
+	const rightContainer = document.getElementById('table-right');
+	
+	if (leftContainer) {
+		const leftRow = leftContainer.querySelector(`tr[data-index="${index}"]`);
+		if (leftRow) leftRow.classList.add('row-highlight');
+	}
+	
+	if (rightContainer) {
+		const rightRow = rightContainer.querySelector(`tr[data-index="${index}"]`);
+		if (rightRow) rightRow.classList.add('row-highlight');
 	}
 }
 
@@ -501,6 +511,21 @@ function clearLinkedHighlight(): void {
 	document.querySelectorAll('.row-highlight').forEach(el => {
 		el.classList.remove('row-highlight');
 	});
+}
+
+function selectRow(index: number): void {
+	state.selectedRowIndex = index;
+	highlightSelectedRow(index);
+}
+
+function highlightSelectedRow(index: number): void {
+	document.querySelectorAll('.selected-row, .current-diff-row').forEach(el => {
+		el.classList.remove('selected-row', 'current-diff-row');
+	});
+
+	const selector = `tr[data-index="${index}"]`;
+	document.getElementById('table-left')?.querySelector(selector)?.classList.add('selected-row');
+	document.getElementById('table-right')?.querySelector(selector)?.classList.add('selected-row');
 }
 
 function showDetailDialog(rowDiff: RowDiff): void {

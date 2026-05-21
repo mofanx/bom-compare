@@ -6,7 +6,7 @@ export interface State {
 	diffResult: DiffResult | null;
 	filter: FilterType;
 	searchKeyword: string;
-	currentDiffIndex: number;
+	selectedRowIndex: number;
 	sortField: string | null;
 	sortDirection: 'asc' | 'desc';
 	loading: boolean;
@@ -20,7 +20,7 @@ export const state: State = {
 	diffResult: null,
 	filter: 'all',
 	searchKeyword: '',
-	currentDiffIndex: -1,
+	selectedRowIndex: -1,
 	sortField: null,
 	sortDirection: 'asc',
 	loading: false,
