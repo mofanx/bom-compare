@@ -110,6 +110,7 @@ export default {
 	loadFailed: '加载失败: {error}',
 	summarySheet: '变更摘要',
 	detailSheet: '差异明细',
+	fullCompareSheet: '完整对比',
 	totalRows: '总行数',
 	identical: '完全相同',
 	differences: '有差异',
@@ -125,6 +126,7 @@ export default {
 	statisticItem: '统计项',
 	count: '数量',
 	row: '第{rowNum}行',
+	rowNumber: '行号',
 
 	// Column settings
 	columnSettings: '列名设置',

@@ -1,6 +1,7 @@
 import type { DiffResult, BomFile } from '../types';
 import * as XLSX from 'xlsx';
 import { t } from '../utils/i18n';
+import { getActiveColumns } from './column-config';
 
 export async function exportReport(result: DiffResult): Promise<void> {
 	const wb = XLSX.utils.book_new();
@@ -43,6 +44,58 @@ export async function exportReport(result: DiffResult): Promise<void> {
 
 	const detailSheet = XLSX.utils.aoa_to_sheet(detailData);
 	XLSX.utils.book_append_sheet(wb, detailSheet, t('detailSheet'));
+
+	// Sheet 3: Full Comparison
+	const activeColumns = getActiveColumns();
+	const fullCompareHeaders = [t('diffType'), t('designator'), t('rowNumber'), ...activeColumns.map(col => t(col.field))];
+	const fullCompareData: (string | number)[][] = [fullCompareHeaders];
+
+	for (const row of result.rows) {
+		if (row.type === 'same') continue;
+
+		const designator = (row.oldRow || row.newRow)?.designator || '';
+		const diffTypeLabel = row.type === 'added' ? t('new') : row.type === 'removed' ? t('missing') : t('change');
+
+		// Format row number: "Old 6 / New 7" or "New 8" or "Old 5"
+		let rowNumber = '';
+		if (row.type === 'added') {
+			const rowNum = row.newRow ? row.newRow.rowIndex + 2 : '?';
+			rowNumber = `${t('newFile')} ${rowNum}`;
+		} else if (row.type === 'removed') {
+			const rowNum = row.oldRow ? row.oldRow.rowIndex + 2 : '?';
+			rowNumber = `${t('oldFile')} ${rowNum}`;
+		} else {
+			const oldNum = row.oldRow ? row.oldRow.rowIndex + 2 : '?';
+			const newNum = row.newRow ? row.newRow.rowIndex + 2 : '?';
+			rowNumber = `${t('oldFile')} ${oldNum} / ${t('newFile')} ${newNum}`;
+		}
+
+		const rowData: (string | number)[] = [diffTypeLabel, designator, rowNumber];
+
+		for (const col of activeColumns) {
+			const field = col.field;
+			const oldVal = row.oldRow ? String(row.oldRow[field] || '') : '';
+			const newVal = row.newRow ? String(row.newRow[field] || '') : '';
+
+			if (row.type === 'added') {
+				rowData.push(newVal || '-');
+			} else if (row.type === 'removed') {
+				rowData.push(oldVal || '-');
+			} else {
+				// For changed rows, show old -> new if different
+				if (oldVal !== newVal) {
+					rowData.push(`${oldVal} → ${newVal}`);
+				} else {
+					rowData.push(oldVal || '-');
+				}
+			}
+		}
+
+		fullCompareData.push(rowData);
+	}
+
+	const fullCompareSheet = XLSX.utils.aoa_to_sheet(fullCompareData);
+	XLSX.utils.book_append_sheet(wb, fullCompareSheet, t('fullCompareSheet'));
 
 	const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
 	const blob = new Blob([wbout], { type: 'application/octet-stream' });

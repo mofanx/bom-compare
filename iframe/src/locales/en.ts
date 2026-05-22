@@ -109,6 +109,7 @@ export default {
 	loadFailed: 'Load failed: {error}',
 	summarySheet: 'Change Summary',
 	detailSheet: 'Detail Differences',
+	fullCompareSheet: 'Full Comparison',
 	totalRows: 'Total Rows',
 	identical: 'Identical',
 	differences: 'Differences',
@@ -124,6 +125,7 @@ export default {
 	statisticItem: 'Statistic Item',
 	count: 'Count',
 	row: 'Row {rowNum}',
+	rowNumber: 'Row Number',
 
 	// Column settings
 	columnSettings: 'Column Settings',
