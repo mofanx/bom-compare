@@ -380,12 +380,23 @@ function createDiffRow(row: BomRow | null, rowDiff: RowDiff, side: 'old' | 'new'
 
 	const changedFields = new Set(rowDiff.cellDiffs.map(d => d.field));
 
-	if (columnMappings && rawValues) {
+	if (columnMappings) {
+		// Always use columnMappings to ensure consistent column count across all rows
 		for (let i = 0; i < columnMappings.length; i++) {
 			const mapping = columnMappings[i];
 			const td = document.createElement('td');
-			td.textContent = rawValues[i] || '';
-			td.title = rawValues[i] || '';
+			
+			// Use rawValues if available, otherwise use row data or empty string
+			if (rawValues && rawValues[i] !== undefined) {
+				td.textContent = rawValues[i] || '';
+				td.title = rawValues[i] || '';
+			} else if (row && mapping.targetField !== 'ignore') {
+				td.textContent = String(row[mapping.targetField] || '');
+				td.title = String(row[mapping.targetField] || '');
+			} else {
+				td.textContent = '';
+				td.title = '';
+			}
 
 			if (mapping.targetField !== 'ignore' && rowDiff.type === 'changed' && changedFields.has(String(mapping.targetField))) {
 				td.classList.add('cell-changed');
@@ -397,6 +408,7 @@ function createDiffRow(row: BomRow | null, rowDiff: RowDiff, side: 'old' | 'new'
 			tr.appendChild(td);
 		}
 	} else {
+		// Fallback to active columns if no columnMappings available
 		for (const col of getActiveColumns()) {
 			const td = document.createElement('td');
 			td.textContent = row ? String(row[col.field] || '') : '';
