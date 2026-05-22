@@ -2,6 +2,7 @@ import type { DiffResult, BomFile } from '../types';
 import * as XLSX from 'xlsx';
 import { t } from '../utils/i18n';
 import { getActiveColumns } from './column-config';
+import { state } from '../ui/state';
 
 export async function exportReport(result: DiffResult): Promise<void> {
 	const wb = XLSX.utils.book_new();
@@ -17,8 +18,36 @@ export async function exportReport(result: DiffResult): Promise<void> {
 		[t('addedRows'), result.summary.added],
 		[t('removedRows'), result.summary.removed],
 		[''],
-		[t('comparedColumns'), result.comparedColumns.join(', ')],
 	];
+
+	// Add header differences if files are loaded
+	if (state.oldFile && state.newFile) {
+		const activeColumns = getActiveColumns();
+		const headerRow = ['', ...activeColumns.map(col => t(col.field))];
+		const oldHeaderRow = [t('oldFileHeader')];
+		const newHeaderRow = [t('newFileHeader')];
+
+		for (const col of activeColumns) {
+			const field = col.field;
+			// Get the original header from the file based on column mapping
+			const oldMapping = state.oldFile.columnMappings.find(m => m.targetField === field);
+			const newMapping = state.newFile.columnMappings.find(m => m.targetField === field);
+
+			const oldHeader = oldMapping ? oldMapping.sourceColumn : '-';
+			const newHeader = newMapping ? newMapping.sourceColumn : '-';
+
+			oldHeaderRow.push(oldHeader);
+			newHeaderRow.push(newHeader);
+		}
+
+		summaryData.push([t('compareHeaderDiff')]);
+		summaryData.push(headerRow);
+		summaryData.push(oldHeaderRow);
+		summaryData.push(newHeaderRow);
+		summaryData.push(['']);
+	}
+
+	summaryData.push([t('comparedColumns'), result.comparedColumns.join(', ')]);
 	const summarySheet = XLSX.utils.aoa_to_sheet(summaryData);
 	XLSX.utils.book_append_sheet(wb, summarySheet, t('summarySheet'));
 
