@@ -1,5 +1,5 @@
 import type { BomFile, BomRow, ColumnMapping } from '../../types';
-import { mapColumns } from '../column-mapper';
+import { mapColumns, getDuplicateColumns } from '../column-mapper';
 import { getColumnConfig } from '../column-config';
 import * as XLSX from 'xlsx';
 
@@ -22,6 +22,7 @@ export function parseExcel(data: ArrayBuffer, fileName: string, sheetName?: stri
 	const rawHeaders = lines[headerLineIndex].map(h => String(h).trim());
 	const columnMappings = mapColumns(rawHeaders);
 	const headers = columnMappings.map(m => String(m.targetField));
+	const duplicateColumns = getDuplicateColumns();
 
 	const rows: BomRow[] = [];
 	const rawRows: string[][] = [];
@@ -34,7 +35,7 @@ export function parseExcel(data: ArrayBuffer, fileName: string, sheetName?: stri
 		}
 	}
 
-	return { fileName, rows, headers, rawHeaders, rawRows, columnMappings };
+	return { fileName, rows, headers, rawHeaders, rawRows, columnMappings, duplicateColumns };
 }
 
 export function getSheetNames(data: ArrayBuffer): string[] {

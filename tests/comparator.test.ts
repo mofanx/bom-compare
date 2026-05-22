@@ -9,6 +9,16 @@ describe('Comparator', () => {
 			rows,
 			headers: ['designator', 'footprint', 'quantity', 'manufacturer', 'lcscPart', 'value', 'description'],
 			rawHeaders: ['Designator', 'Footprint', 'Quantity', 'Manufacturer', 'LCSC Part', 'Value', 'Description'],
+			rawRows: [],
+			columnMappings: [
+				{ sourceColumn: 'Designator', targetField: 'designator' },
+				{ sourceColumn: 'Footprint', targetField: 'footprint' },
+				{ sourceColumn: 'Quantity', targetField: 'quantity' },
+				{ sourceColumn: 'Manufacturer', targetField: 'manufacturer' },
+				{ sourceColumn: 'LCSC Part', targetField: 'partNumber' },
+				{ sourceColumn: 'Value', targetField: 'value' },
+				{ sourceColumn: 'Description', targetField: 'description' },
+			],
 		};
 	}
 

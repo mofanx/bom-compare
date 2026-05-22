@@ -17,6 +17,7 @@ export interface BomFile {
 	rawHeaders: string[];
 	rawRows: string[][];
 	columnMappings: ColumnMapping[];
+	duplicateColumns?: DuplicateColumn[];
 }
 
 export type DiffType = 'same' | 'changed' | 'added' | 'removed';
@@ -51,6 +52,12 @@ export interface DiffSummary {
 export interface ColumnMapping {
 	sourceColumn: string;
 	targetField: keyof BomRow | 'ignore';
+}
+
+export interface DuplicateColumn {
+	sourceColumn: string;
+	targetField: keyof BomRow;
+	conflictWith: string[];
 }
 
 export type FilterType = 'all' | 'diff' | 'added' | 'removed' | 'same';

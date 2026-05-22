@@ -150,4 +150,5 @@ export default {
 	needDesignator: '至少需要保留位号字段',
 	needDesignatorAlias: '位号字段至少需要一个别名',
 	save: '保存',
+	duplicateColumnWarning: '检测到字段"{field}"存在重复列：已保留"{kept}"，已忽略"{ignored}"',
 };

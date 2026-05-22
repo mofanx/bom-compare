@@ -149,4 +149,5 @@ export default {
 	needDesignator: 'Designator field is required',
 	needDesignatorAlias: 'Designator needs at least one alias',
 	save: 'Save',
+	duplicateColumnWarning: 'Duplicate column detected for field "{field}": kept "{kept}", ignored "{ignored}"',
 };

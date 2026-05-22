@@ -167,6 +167,21 @@ export async function loadFile(file: File, side: 'old' | 'new'): Promise<void> {
 
 		hideLoading();
 		showToast(t('loadSuccess', { filename: file.name, rowCount: bomFile.rows.length + 1 }), 'success');
+
+		// Check for duplicate columns and show warning
+		if (bomFile.duplicateColumns && bomFile.duplicateColumns.length > 0) {
+			const duplicateWarnings = bomFile.duplicateColumns.map(dup => {
+				const conflictList = dup.conflictWith.join(', ');
+				return t('duplicateColumnWarning', {
+					field: dup.targetField,
+					kept: dup.sourceColumn,
+					ignored: conflictList
+				});
+			});
+			setTimeout(() => {
+				duplicateWarnings.forEach(warning => showToast(warning, 'warning'));
+			}, 500);
+		}
 	} catch (err) {
 		hideLoading();
 		const errMsg = err instanceof Error ? err.message : String(err);
