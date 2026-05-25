@@ -5,7 +5,7 @@ export function mapSingleColumn(header: string): ColumnMapping {
 	const aliases = getColumnAliases();
 	const normalized = header.toLowerCase().trim();
 	for (const [field, fieldAliases] of Object.entries(aliases)) {
-		if (fieldAliases.some(alias => normalized === alias || normalized.includes(alias))) {
+		if (fieldAliases.some(alias => normalized === alias)) {
 			return { sourceColumn: header, targetField: field as keyof BomRow };
 		}
 	}
@@ -21,7 +21,7 @@ export function mapColumns(rawHeaders: string[]): ColumnMapping[] {
 	const mappings = rawHeaders.map((header) => {
 		const normalized = header.toLowerCase().trim();
 		for (const [field, fieldAliases] of Object.entries(aliases)) {
-			if (fieldAliases.some(alias => normalized === alias || normalized.includes(alias))) {
+			if (fieldAliases.some(alias => normalized === alias)) {
 				const targetField = field as keyof BomRow;
 				
 				// Track all columns that map to this field

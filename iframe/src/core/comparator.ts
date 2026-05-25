@@ -65,7 +65,7 @@ export function compare(oldFile: BomFile, newFile: BomFile): DiffResult {
 		removed: rows.filter(r => r.type === 'removed').length,
 	};
 
-	return { rows, summary, comparedColumns: compareFields };
+	return { rows, summary, comparedColumns: compareFields as string[] };
 }
 
 function buildDesignatorMap(rows: BomRow[]): Map<string, BomRow[]> {
@@ -86,7 +86,7 @@ function compareRows(oldRow: BomRow, newRow: BomRow, compareFields: Array<keyof 
 		const oldVal = String(oldRow[field] || '').trim();
 		const newVal = String(newRow[field] || '').trim();
 		if (oldVal !== newVal) {
-			diffs.push({ field, oldValue: oldVal, newValue: newVal });
+			diffs.push({ field: field as string, oldValue: oldVal, newValue: newVal });
 		}
 	}
 	return diffs;
