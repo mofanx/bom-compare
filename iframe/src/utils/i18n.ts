@@ -108,6 +108,11 @@ function updateAllText(): void {
 			th.textContent = lang === 'zh-Hans' ? standardCol.labelZh : standardCol.label;
 		}
 	});
+
+	// Update preset header tooltips
+	document.querySelectorAll('.bom-table thead .preset-header').forEach(th => {
+		th.setAttribute('title', t('clickToRemap'));
+	});
 }
 
 export function addI18nSupport(): void {

@@ -114,6 +114,22 @@ function createPresetHeaderTh(columnIndex: number, bomFile: BomFile, side: 'old'
 		th.classList.add('mapped');
 	}
 
+	th.dataset.field = String(mapping.targetField);
+
+	th.addEventListener('mousemove', (e) => {
+		const rect = th.getBoundingClientRect();
+		const distanceFromRight = rect.right - e.clientX;
+		if (distanceFromRight < 10) {
+			th.style.cursor = 'col-resize';
+		} else {
+			th.style.cursor = 'pointer';
+		}
+	});
+
+	th.addEventListener('mouseleave', () => {
+		th.style.cursor = 'pointer';
+	});
+
 	th.addEventListener('click', (e) => {
 		e.stopPropagation();
 		if (!th.querySelector('select')) {

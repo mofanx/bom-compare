@@ -85,7 +85,7 @@ export default {
 
 	// Column mapping
 	mappingUpdated: '列映射已更新',
-	clickToRemap: '单击修改映射',
+	clickToRemap: '点击修改映射',
 	columnMappingTitle: '列映射配置',
 	originalColumn: '原始列名',
 	mapToField: '映射到字段',

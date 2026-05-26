@@ -84,7 +84,7 @@ export default {
 
 	// Column mapping
 	mappingUpdated: 'Column mapping updated',
-	clickToRemap: 'Click to change mapping',
+	clickToRemap: 'Click to remap',
 	columnMappingTitle: 'Column Mapping Configuration',
 	originalColumn: 'Original Column',
 	mapToField: 'Map to Field',
