@@ -658,16 +658,8 @@
 			/* Search highlight */
 			.search-highlight {
 				background: rgba(124, 110, 240, 0.2);
-				border: 1px solid var(--primary);
-				position: relative;
-			}
-
-			.search-highlight::after {
-				content: '';
-				position: absolute;
-				inset: 0;
-				pointer-events: none;
-				box-shadow: inset 0 0 0 1px rgba(124, 110, 240, 0.3);
+				outline: 1px solid var(--primary);
+				outline-offset: -1px;
 			}
 
 			/* Summary bar */
