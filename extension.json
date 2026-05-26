@@ -3,7 +3,7 @@
 	"uuid": "c78c9305280f48c0ad48d53803e7f1b2",
 	"displayName": "BOM Compare/BOM 对比工具",
 	"description": "对比两个 BOM 文件的差异，支持 CSV/TXT/XLS/XLSX 格式",
-	"version": "1.2.1",
+	"version": "1.2.2",
 	"publisher": "EasyEDA",
 	"engines": {
 		"eda": "^3.0.0"

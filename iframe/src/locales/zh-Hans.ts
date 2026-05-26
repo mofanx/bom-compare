@@ -9,7 +9,9 @@ export default {
 	newFilePlaceholder: '拖拽或选择新版 BOM...',
 
 	// Toolbar
-	searchPlaceholder: '搜索位号...',
+	searchPlaceholder: '搜索...',
+	searchMode: '搜索模式（高亮）',
+	filterMode: '筛选模式（过滤）',
 	prevDiff: '上一处差异',
 	nextDiff: '下一处差异',
 	filterAll: '全部',

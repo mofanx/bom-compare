@@ -616,6 +616,60 @@
 				color: var(--primary);
 			}
 
+			/* Search mode toggle */
+			.search-mode-toggle {
+				display: flex;
+				gap: 2px;
+				background: var(--bg-surface);
+				border: 1px solid var(--border-light);
+				border-radius: 6px;
+				padding: 2px;
+			}
+
+			.btn-mode {
+				width: 28px;
+				height: 28px;
+				border: none;
+				background: transparent;
+				color: var(--text-muted);
+				border-radius: 4px;
+				cursor: pointer;
+				transition: all var(--transition);
+				display: flex;
+				align-items: center;
+				justify-content: center;
+			}
+
+			.btn-mode:hover {
+				background: var(--bg-hover);
+				color: var(--text);
+			}
+
+			.btn-mode.active {
+				background: var(--primary);
+				color: #fff;
+			}
+
+			.btn-mode svg {
+				width: 14px;
+				height: 14px;
+			}
+
+			/* Search highlight */
+			.search-highlight {
+				background: rgba(124, 110, 240, 0.2);
+				border: 1px solid var(--primary);
+				position: relative;
+			}
+
+			.search-highlight::after {
+				content: '';
+				position: absolute;
+				inset: 0;
+				pointer-events: none;
+				box-shadow: inset 0 0 0 1px rgba(124, 110, 240, 0.3);
+			}
+
 			/* Summary bar */
 			.summary-bar {
 				display: flex;
@@ -1060,9 +1114,22 @@
 
 			<div class="action-bar">
 				<div class="action-bar-left">
-					<input type="text" id="search-input" class="search-input" data-i18n-placeholder="searchPlaceholder" placeholder="搜索位号..." />
-					<button id="btn-prev-diff" class="btn btn-icon" data-i18n-title="prevDiff" title="上一处差异">&#9650;</button>
-					<button id="btn-next-diff" class="btn btn-icon" data-i18n-title="nextDiff" title="下一处差异">&#9660;</button>
+					<div class="search-mode-toggle">
+						<button id="btn-search-mode" class="btn btn-icon btn-mode active" data-i18n-title="searchMode">
+							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+								<circle cx="11" cy="11" r="8"></circle>
+								<line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+							</svg>
+						</button>
+						<button id="btn-filter-mode" class="btn btn-icon btn-mode" data-i18n-title="filterMode">
+							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+								<polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+							</svg>
+						</button>
+					</div>
+					<input type="text" id="search-input" class="search-input" data-i18n-placeholder="searchPlaceholder" placeholder="搜索..." />
+					<button id="btn-prev-diff" class="btn btn-icon" data-i18n-title="prevDiff">&#9650;</button>
+					<button id="btn-next-diff" class="btn btn-icon" data-i18n-title="nextDiff">&#9660;</button>
 					<select id="filter-select" class="filter-select">
 						<option value="all" data-i18n="filterAll">全部</option>
 						<option value="diff" data-i18n="filterDiff">仅差异</option>

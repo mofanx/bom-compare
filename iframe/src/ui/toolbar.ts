@@ -7,7 +7,7 @@ import { showLoading, updateLoadingProgress, hideLoading } from './loading';
 import { showToast } from './drop-zone';
 import { t } from '../utils/i18n';
 import { showColumnSettingsDialog } from './column-settings-dialog';
-import { renderDiffResult, filterRows } from './table';
+import { renderDiffResult, filterRows, performSearch } from './table';
 import { loadFile } from './drop-zone';
 import { commitEditing } from './editable';
 
@@ -25,6 +25,8 @@ export function initToolbar(): void {
 	const filterSelect = document.getElementById('filter-select') as HTMLSelectElement;
 	const searchInput = document.getElementById('search-input') as HTMLInputElement;
 	const btnColumnSettings = document.getElementById('btn-column-settings')!;
+	const btnSearchMode = document.getElementById('btn-search-mode')!;
+	const btnFilterMode = document.getElementById('btn-filter-mode')!;
 
 	oldImport.addEventListener('click', () => openFileDialog('old'));
 	newImport.addEventListener('click', () => openFileDialog('new'));
@@ -34,6 +36,21 @@ export function initToolbar(): void {
 	newClear.addEventListener('click', () => clearPanel('new'));
 
 	btnColumnSettings.addEventListener('click', () => showColumnSettingsDialog());
+
+	// 搜索模式切换
+	btnSearchMode.addEventListener('click', () => {
+		state.searchMode = 'search';
+		btnSearchMode.classList.add('active');
+		btnFilterMode.classList.remove('active');
+		performSearch();
+	});
+
+	btnFilterMode.addEventListener('click', () => {
+		state.searchMode = 'filter';
+		btnFilterMode.classList.add('active');
+		btnSearchMode.classList.remove('active');
+		performSearch();
+	});
 
 	btnCompare.addEventListener('click', executeCompare);
 	btnExport.addEventListener('click', async () => {
@@ -60,7 +77,7 @@ export function initToolbar(): void {
 	searchInput.addEventListener('input', () => {
 		state.searchKeyword = searchInput.value;
 		state.selectedRowIndex = -1;
-		if (state.diffResult) renderDiffResult();
+		performSearch();
 	});
 
 	document.addEventListener('bom:recompare', () => {

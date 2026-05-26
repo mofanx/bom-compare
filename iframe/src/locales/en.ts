@@ -9,7 +9,9 @@ export default {
 	newFilePlaceholder: 'Drag or select new BOM file...',
 
 	// Toolbar
-	searchPlaceholder: 'Search designator...',
+	searchPlaceholder: 'Search...',
+	searchMode: 'Search mode (highlight)',
+	filterMode: 'Filter mode (filter)',
 	prevDiff: 'Previous Diff',
 	nextDiff: 'Next Diff',
 	filterAll: 'All',

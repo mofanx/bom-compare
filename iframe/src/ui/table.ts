@@ -1,4 +1,4 @@
-import type { BomFile, BomRow, RowDiff } from '../types';
+import type { BomFile, BomRow, RowDiff, DiffResult } from '../types';
 import { getColumnLetter } from '../types';
 import { getActiveColumns } from '../core/column-config';
 import { state } from './state';
@@ -15,6 +15,7 @@ import { renderSummary } from './summary';
 export function renderTable(container: HTMLElement, bomFile: BomFile, side: 'old' | 'new'): void {
 	const table = document.createElement('table');
 	table.className = 'bom-table';
+	table.id = side === 'old' ? 'table-left' : 'table-right';
 
 	const thead = document.createElement('thead');
 
@@ -275,6 +276,7 @@ export function renderDiffResult(): void {
 function renderDiffTable(container: HTMLElement, rows: RowDiff[], side: 'old' | 'new'): void {
 	const table = document.createElement('table');
 	table.className = 'bom-table';
+	table.id = side === 'old' ? 'table-left' : 'table-right';
 
 	const bomFile = side === 'old' ? state.oldFile : state.newFile;
 	const thead = document.createElement('thead');
@@ -346,6 +348,7 @@ function createDataRow(row: BomRow, columnMappings: any[], rawValues: string[]):
 
 	const numTd = document.createElement('td');
 	numTd.textContent = String(row.rowIndex + 2);
+	numTd.dataset.field = 'rowIndex';
 	tr.appendChild(numTd);
 
 	for (let i = 0; i < columnMappings.length; i++) {
@@ -353,6 +356,7 @@ function createDataRow(row: BomRow, columnMappings: any[], rawValues: string[]):
 		const td = document.createElement('td');
 		td.textContent = rawValues[i] || '';
 		td.title = rawValues[i] || '';
+		td.dataset.field = String(mapping.targetField);
 
 		if (mapping.targetField === 'ignore') {
 			td.style.background = 'var(--bg-hover)';
@@ -376,6 +380,7 @@ function createDiffRow(row: BomRow | null, rowDiff: RowDiff, side: 'old' | 'new'
 
 	const numTd = document.createElement('td');
 	numTd.textContent = row ? String(row.rowIndex + 2) : '';
+	numTd.dataset.field = 'rowIndex';
 	tr.appendChild(numTd);
 
 	const changedFields = new Set(rowDiff.cellDiffs.map(d => d.field));
@@ -385,6 +390,7 @@ function createDiffRow(row: BomRow | null, rowDiff: RowDiff, side: 'old' | 'new'
 		for (let i = 0; i < columnMappings.length; i++) {
 			const mapping = columnMappings[i];
 			const td = document.createElement('td');
+			td.dataset.field = String(mapping.targetField);
 			
 			// Use rawValues if available, otherwise use row data or empty string
 			if (rawValues && rawValues[i] !== undefined) {
@@ -411,6 +417,7 @@ function createDiffRow(row: BomRow | null, rowDiff: RowDiff, side: 'old' | 'new'
 		// Fallback to active columns if no columnMappings available
 		for (const col of getActiveColumns()) {
 			const td = document.createElement('td');
+			td.dataset.field = col.field;
 			td.textContent = row ? String(row[col.field] || '') : '';
 			td.title = row ? String(row[col.field] || '') : '';
 
@@ -478,11 +485,21 @@ export function filterRows(rows: RowDiff[]): RowDiff[] {
 		});
 	}
 
-	if (state.searchKeyword) {
+	if (state.searchKeyword && state.searchMode === 'filter') {
 		const kw = state.searchKeyword.toLowerCase();
 		filtered = filtered.filter(row => {
-			const designator = (row.oldRow || row.newRow)?.designator || '';
-			return designator.toLowerCase().includes(kw);
+			const oldRow = row.oldRow;
+			const newRow = row.newRow;
+			
+			// 检查旧文件的所有字段
+			if (oldRow && Object.values(oldRow).some(v => String(v).toLowerCase().includes(kw))) {
+				return true;
+			}
+			// 检查新文件的所有字段
+			if (newRow && Object.values(newRow).some(v => String(v).toLowerCase().includes(kw))) {
+				return true;
+			}
+			return false;
 		});
 	}
 
@@ -546,4 +563,119 @@ function showDetailDialog(rowDiff: RowDiff): void {
 }
 
 export function initRowHoverHighlight(): void {
+}
+
+// 统一的搜索函数（对比前后通用）
+export function performSearch(): void {
+	const keyword = state.searchKeyword.toLowerCase();
+	
+	if (!keyword) {
+		// 清空搜索
+		clearSearchHighlights();
+		showAllRows();
+		return;
+	}
+	
+	// 根据模式应用显示效果
+	if (state.searchMode === 'filter') {
+		filterToMatches();
+	} else {
+		highlightMatches();
+	}
+}
+
+// 高亮匹配单元格
+function highlightMatches(): void {
+	// 清除旧高亮
+	document.querySelectorAll('.search-highlight').forEach(el => {
+		el.classList.remove('search-highlight');
+	});
+	
+	const keyword = state.searchKeyword.toLowerCase();
+	if (!keyword) return;
+	
+	// 获取表格
+	const tableLeft = document.getElementById('table-left');
+	const tableRight = document.getElementById('table-right');
+	
+	[ tableLeft, tableRight ].forEach(table => {
+		if (!table) return;
+		
+		// 遍历所有单元格
+		const cells = table.querySelectorAll('tbody td');
+		cells.forEach(cell => {
+			const cellEl = cell as HTMLElement;
+			const text = cellEl.textContent || '';
+			
+			// 检查是否包含关键词
+			if (text.toLowerCase().includes(keyword)) {
+				cellEl.classList.add('search-highlight');
+			}
+		});
+	});
+}
+
+// 筛选到匹配行
+function filterToMatches(): void {
+	const tableLeft = document.getElementById('table-left');
+	const tableRight = document.getElementById('table-right');
+	
+	const keyword = state.searchKeyword.toLowerCase();
+	
+	if (!state.diffResult) {
+		// 对比前：筛选 BOM 行
+		filterBomTable(tableLeft, keyword);
+		filterBomTable(tableRight, keyword);
+	} else {
+		// 对比后：重新渲染 diff 结果（filterRows 会处理搜索）
+		renderDiffResult();
+	}
+}
+
+// 筛选 BOM 表格（对比前）
+function filterBomTable(table: HTMLElement | null, keyword: string): void {
+	if (!table || !keyword) {
+		// 如果没有表格或没有关键词，显示所有行
+		if (table) {
+			table.querySelectorAll('tbody tr').forEach(row => {
+				(row as HTMLElement).style.display = '';
+			});
+		}
+		return;
+	}
+	
+	const rows = table.querySelectorAll('tbody tr');
+	rows.forEach((row) => {
+		const rowEl = row as HTMLElement;
+		const cells = rowEl.querySelectorAll('td');
+		let hasMatch = false;
+		
+		// 检查该行是否有单元格包含关键词
+		cells.forEach(cell => {
+			const text = cell.textContent || '';
+			if (text.toLowerCase().includes(keyword)) {
+				hasMatch = true;
+			}
+		});
+		
+		rowEl.style.display = hasMatch ? '' : 'none';
+	});
+}
+
+// 清除高亮
+function clearSearchHighlights(): void {
+	document.querySelectorAll('.search-highlight').forEach(el => {
+		el.classList.remove('search-highlight');
+	});
+}
+
+// 显示所有行
+function showAllRows(): void {
+	if (state.diffResult) {
+		renderDiffResult();
+	} else {
+		document.querySelectorAll('tbody tr').forEach(row => {
+			(row as HTMLElement).style.display = '';
+		});
+	}
 }
