@@ -124,6 +124,32 @@ function createPresetHeaderTh(columnIndex: number, bomFile: BomFile, side: 'old'
 	return th;
 }
 
+// 检查表头是否有差异
+function hasHeaderDiff(): boolean {
+	if (!state.oldFile || !state.newFile) return false;
+
+	const oldMappings = state.oldFile.columnMappings;
+	const newMappings = state.newFile.columnMappings;
+	const oldHeaders = state.oldFile.rawHeaders;
+	const newHeaders = state.newFile.rawHeaders;
+
+	// 收集两侧都有映射的预设字段（取并集）
+	const mappedFields = new Set<string>();
+	for (const m of oldMappings) { if (m.targetField !== 'ignore') mappedFields.add(String(m.targetField)); }
+	for (const m of newMappings) { if (m.targetField !== 'ignore') mappedFields.add(String(m.targetField)); }
+
+	// 检查每个映射字段的表头是否相同
+	for (const field of mappedFields) {
+		const oldIdx = oldMappings.findIndex(m => String(m.targetField) === field);
+		const newIdx = newMappings.findIndex(m => String(m.targetField) === field);
+		const oldVal = oldIdx >= 0 ? (oldHeaders[oldIdx] || '') : '';
+		const newVal = newIdx >= 0 ? (newHeaders[newIdx] || '') : '';
+		if (oldVal !== newVal) return true;
+	}
+
+	return false;
+}
+
 // 创建原始表头行（作为 tbody 第一行，行号 1，单元格样式）
 function createRawHeaderRow(bomFile: BomFile, side: 'old' | 'new' = 'old'): HTMLTableRowElement {
 	const tr = document.createElement('tr');
@@ -147,19 +173,25 @@ function createRawHeaderRow(bomFile: BomFile, side: 'old' | 'new' = 'old'): HTML
 		tr.appendChild(td);
 	}
 
+	// 始终创建详情列单元格，保持列的一致性
 	if (side === 'new') {
 		const actionTd = document.createElement('td');
 		actionTd.style.position = 'sticky';
 		actionTd.style.right = '0';
 		actionTd.style.background = 'var(--bg-surface)';
 		actionTd.style.zIndex = '1';
-		const btn = document.createElement('button');
-		btn.className = 'btn-detail';
-		btn.textContent = t('detail');
-		btn.addEventListener('click', () => {
-			showHeaderDetailDialog(state.oldFile, state.newFile);
-		});
-		actionTd.appendChild(btn);
+
+		// 只在表头有差异时显示详情按钮
+		if (hasHeaderDiff()) {
+			const btn = document.createElement('button');
+			btn.className = 'btn-detail';
+			btn.textContent = t('detail');
+			btn.addEventListener('click', () => {
+				showHeaderDetailDialog(state.oldFile, state.newFile);
+			});
+			actionTd.appendChild(btn);
+		}
+
 		tr.appendChild(actionTd);
 	}
 
