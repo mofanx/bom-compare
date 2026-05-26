@@ -324,6 +324,11 @@ export function renderDiffResult(): void {
 
 	renderSummary(state.diffResult);
 	initSyncScroll();
+
+	// 如果有搜索关键词，重新应用高亮
+	if (state.searchKeyword) {
+		applyHighlight();
+	}
 }
 
 function renderDiffTable(container: HTMLElement, rows: RowDiff[], side: 'old' | 'new'): void {
@@ -541,15 +546,28 @@ export function filterRows(rows: RowDiff[]): RowDiff[] {
 		filtered = filtered.filter(row => {
 			const oldRow = row.oldRow;
 			const newRow = row.newRow;
-			
-			// 检查旧文件的所有字段
+
+			// 检查旧文件的所有字段（映射后的）
 			if (oldRow && Object.values(oldRow).some(v => String(v).toLowerCase().includes(kw))) {
 				return true;
 			}
-			// 检查新文件的所有字段
+			// 检查新文件的所有字段（映射后的）
 			if (newRow && Object.values(newRow).some(v => String(v).toLowerCase().includes(kw))) {
 				return true;
 			}
+
+			// 对比后：检查原始数据中的所有列（包括未映射列）
+			if (state.diffResult) {
+				const oldRawValues = state.oldFile?.rawRows?.[oldRow?.rowIndex ?? -1];
+				const newRawValues = state.newFile?.rawRows?.[newRow?.rowIndex ?? -1];
+				if (oldRawValues && oldRawValues.some(v => String(v).toLowerCase().includes(kw))) {
+					return true;
+				}
+				if (newRawValues && newRawValues.some(v => String(v).toLowerCase().includes(kw))) {
+					return true;
+				}
+			}
+
 			return false;
 		});
 	}
@@ -667,12 +685,17 @@ function highlightMatches(): void {
 	document.querySelectorAll('.search-highlight').forEach(el => {
 		el.classList.remove('search-highlight');
 	});
-	
-	// 恢复所有行的显示（从筛选模式切换回来时需要）
-	document.querySelectorAll('tbody tr').forEach(row => {
-		(row as HTMLElement).style.display = '';
-	});
-	
+
+	// 对比后需要重新渲染表格（只应用差异筛选，不应用文本筛选）
+	if (state.diffResult) {
+		renderDiffResult();
+	} else {
+		// 对比前：恢复所有行的显示（从筛选模式切换回来时需要）
+		document.querySelectorAll('tbody tr').forEach(row => {
+			(row as HTMLElement).style.display = '';
+		});
+	}
+
 	// 应用高亮样式
 	applyHighlight();
 }

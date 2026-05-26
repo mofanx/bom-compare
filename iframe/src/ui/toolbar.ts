@@ -128,6 +128,8 @@ function clearPanel(side: 'old' | 'new'): void {
 	(document.getElementById(dropZoneId)! as HTMLElement).style.display = 'flex';
 	(document.querySelector(`#${panelId} .panel-label`)! as HTMLElement).style.display = 'block';
 
+	// 保存对比结果状态，用于判断是否需要恢复另一侧
+	const hadDiffResult = !!state.diffResult;
 	state.diffResult = null;
 
 	// 隐藏差异导航和筛选按钮
@@ -138,13 +140,18 @@ function clearPanel(side: 'old' | 'new'): void {
 	document.getElementById('summary-text')!.textContent = t('summaryText');
 	document.getElementById('summary-badges')!.innerHTML = '';
 
-	// 恢复另一侧到非对比状态
+	// 恢复另一侧到非对比状态（仅在执行了BOM对比后）
 	const otherSide = side === 'old' ? 'new' : 'old';
 	const otherFile = otherSide === 'old' ? state.oldFile : state.newFile;
-	if (otherFile) {
+	if (otherFile && hadDiffResult) {
 		const otherTableId = otherSide === 'old' ? 'table-left' : 'table-right';
 		const otherContainer = document.getElementById(otherTableId)!;
 		renderTable(otherContainer, otherFile, otherSide);
+
+		// 如果有文本搜索关键词，重新应用搜索或筛选
+		if (state.searchKeyword) {
+			performSearch();
+		}
 	}
 }
 
