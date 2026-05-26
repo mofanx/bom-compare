@@ -591,6 +591,11 @@ function highlightMatches(): void {
 		el.classList.remove('search-highlight');
 	});
 	
+	// 恢复所有行的显示（从筛选模式切换回来时需要）
+	document.querySelectorAll('tbody tr').forEach(row => {
+		(row as HTMLElement).style.display = '';
+	});
+	
 	const keyword = state.searchKeyword.toLowerCase();
 	if (!keyword) return;
 	
