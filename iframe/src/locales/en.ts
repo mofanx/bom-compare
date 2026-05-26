@@ -30,7 +30,6 @@ export default {
 	dropOldTitle: 'Drag old BOM file here',
 	dropNewTitle: 'Drag new BOM file here',
 	dropSub: 'Support CSV / TXT / XLS / XLSX',
-	dropInstruction: 'Drag file here or click button below to select',
 	clickSelectFile: 'Click to select file',
 
 	// Summary

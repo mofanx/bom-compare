@@ -30,7 +30,6 @@ export default {
 	dropOldTitle: '拖拽旧版 BOM 文件到此处',
 	dropNewTitle: '拖拽新版 BOM 文件到此处',
 	dropSub: '支持 CSV / TXT / XLS / XLSX',
-	dropInstruction: '拖拽文件到此处，或点击下方按钮选择',
 	clickSelectFile: '点击选择文件',
 
 	// Summary

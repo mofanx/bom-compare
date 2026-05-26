@@ -323,6 +323,8 @@
 				overflow: auto;
 				transition: all var(--transition);
 				overflow-x: auto;
+				min-height: 0;
+				position: relative;
 			}
 
 			.table-container.drag-over {
@@ -334,6 +336,12 @@
 			/* Column mapping header styles */
 			.preset-header-row {
 				background: var(--bg-elevated);
+			}
+
+			.bom-table thead .preset-header-row th {
+				position: sticky !important;
+				top: 0 !important;
+				z-index: 2 !important;
 			}
 
 			.preset-header {
@@ -354,10 +362,10 @@
 				color: var(--text);
 			}
 
-			.bom-table th.preset-header-action {
+			.bom-table thead .preset-header-row th.preset-header-action {
 				position: sticky !important;
 				right: 0 !important;
-				top: auto !important;
+				top: 0 !important;
 				z-index: 10 !important;
 			}
 
@@ -518,12 +526,6 @@
 			}
 
 			/* Table */
-			.table-container {
-				flex: 1;
-				overflow: auto;
-				position: relative;
-			}
-
 			.table-container::-webkit-scrollbar {
 				width: 6px;
 				height: 6px;
@@ -573,6 +575,14 @@
 				text-transform: uppercase;
 				font-size: 11px;
 				letter-spacing: 0.3px;
+			}
+
+			/* 原始表头行（tbody 第一行）的 sticky 定位 */
+			tr[data-row-type="header"] td {
+				position: sticky;
+				top: 36px;
+				background: var(--bg-elevated);
+				z-index: 1;
 			}
 
 			.bom-table th:hover {
@@ -1171,7 +1181,6 @@
 							<line x1="15" y1="15" x2="12" y2="12"></line>
 						</svg>
 						<p class="drop-zone-title" data-i18n="dropOldTitle">旧版 BOM 文件</p>
-						<p class="drop-zone-sub" data-i18n="dropInstruction">拖拽文件到此处，或点击下方按钮选择</p>
 						<p class="drop-zone-sub" data-i18n="dropSub">支持 CSV / TXT / XLS / XLSX</p>
 						<label for="file-input-old" class="drop-zone-label" data-i18n="clickSelectFile">点击选择文件</label>
 					</div>
@@ -1191,7 +1200,6 @@
 							<line x1="15" y1="15" x2="12" y2="12"></line>
 						</svg>
 						<p class="drop-zone-title" data-i18n="dropNewTitle">新版 BOM 文件</p>
-						<p class="drop-zone-sub" data-i18n="dropInstruction">拖拽文件到此处，或点击下方按钮选择</p>
 						<p class="drop-zone-sub" data-i18n="dropSub">支持 CSV / TXT / XLS / XLSX</p>
 						<label for="file-input-new" class="drop-zone-label" data-i18n="clickSelectFile">点击选择文件</label>
 					</div>

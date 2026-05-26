@@ -27,6 +27,9 @@ export function renderTable(container: HTMLElement, bomFile: BomFile, side: 'old
 	presetNumTh.textContent = '#';
 	presetNumTh.style.width = '40px';
 	presetNumTh.dataset.field = 'rowIndex';
+	presetNumTh.style.position = 'sticky';
+	presetNumTh.style.top = '0';
+	presetNumTh.style.zIndex = '2';
 	presetHeaderRow.appendChild(presetNumTh);
 
 	for (let i = 0; i < bomFile.rawHeaders.length; i++) {
@@ -101,6 +104,9 @@ function createPresetHeaderTh(columnIndex: number, bomFile: BomFile, side: 'old'
 	th.style.width = '80px';
 	th.style.minWidth = '80px';
 	th.style.cursor = 'pointer';
+	th.style.position = 'sticky';
+	th.style.top = '0';
+	th.style.zIndex = '2';
 	th.title = t('clickToRemap');
 
 	if (mapping.targetField === 'ignore') {
@@ -348,6 +354,9 @@ function renderDiffTable(container: HTMLElement, rows: RowDiff[], side: 'old' | 
 	presetNumTh.textContent = '#';
 	presetNumTh.style.width = '40px';
 	presetNumTh.dataset.field = 'rowIndex';
+	presetNumTh.style.position = 'sticky';
+	presetNumTh.style.top = '0';
+	presetNumTh.style.zIndex = '2';
 	presetHeaderRow.appendChild(presetNumTh);
 
 	if (bomFile && bomFile.columnMappings) {
