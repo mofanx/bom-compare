@@ -26,6 +26,7 @@ export function renderTable(container: HTMLElement, bomFile: BomFile, side: 'old
 	const presetNumTh = document.createElement('th');
 	presetNumTh.textContent = '#';
 	presetNumTh.style.width = '40px';
+	presetNumTh.dataset.field = 'rowIndex';
 	presetHeaderRow.appendChild(presetNumTh);
 
 	for (let i = 0; i < bomFile.rawHeaders.length; i++) {
@@ -346,6 +347,7 @@ function renderDiffTable(container: HTMLElement, rows: RowDiff[], side: 'old' | 
 	const presetNumTh = document.createElement('th');
 	presetNumTh.textContent = '#';
 	presetNumTh.style.width = '40px';
+	presetNumTh.dataset.field = 'rowIndex';
 	presetHeaderRow.appendChild(presetNumTh);
 
 	if (bomFile && bomFile.columnMappings) {
