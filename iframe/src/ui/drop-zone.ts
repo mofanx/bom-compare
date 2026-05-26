@@ -4,6 +4,7 @@ import { state } from './state';
 import { showLoading, updateLoadingProgress, hideLoading } from './loading';
 import { t } from '../utils/i18n';
 import { renderTable } from './table';
+import { performSearch } from './table';
 
 const SUPPORTED_EXTENSIONS = ['.csv', '.txt', '.xls', '.xlsx'];
 
@@ -167,6 +168,11 @@ export async function loadFile(file: File, side: 'old' | 'new'): Promise<void> {
 
 		hideLoading();
 		showToast(t('loadSuccess', { filename: file.name, rowCount: bomFile.rows.length + 1 }), 'success');
+
+		// 如果有搜索关键词，自动触发搜索
+		if (state.searchKeyword) {
+			performSearch();
+		}
 
 		// Check for duplicate columns and show warning
 		if (bomFile.duplicateColumns && bomFile.duplicateColumns.length > 0) {
