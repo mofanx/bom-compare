@@ -584,18 +584,8 @@ export function performSearch(): void {
 	}
 }
 
-// 高亮匹配单元格
-function highlightMatches(): void {
-	// 清除旧高亮
-	document.querySelectorAll('.search-highlight').forEach(el => {
-		el.classList.remove('search-highlight');
-	});
-	
-	// 恢复所有行的显示（从筛选模式切换回来时需要）
-	document.querySelectorAll('tbody tr').forEach(row => {
-		(row as HTMLElement).style.display = '';
-	});
-	
+// 应用高亮样式（只负责添加高亮，不处理行显示）
+function applyHighlight(): void {
 	const keyword = state.searchKeyword.toLowerCase();
 	if (!keyword) return;
 	
@@ -618,6 +608,22 @@ function highlightMatches(): void {
 			}
 		});
 	});
+}
+
+// 高亮匹配单元格
+function highlightMatches(): void {
+	// 清除旧高亮
+	document.querySelectorAll('.search-highlight').forEach(el => {
+		el.classList.remove('search-highlight');
+	});
+	
+	// 恢复所有行的显示（从筛选模式切换回来时需要）
+	document.querySelectorAll('tbody tr').forEach(row => {
+		(row as HTMLElement).style.display = '';
+	});
+	
+	// 应用高亮样式
+	applyHighlight();
 }
 
 // 筛选到匹配行
@@ -649,6 +655,11 @@ function filterBomTable(table: HTMLElement | null, keyword: string): void {
 		return;
 	}
 	
+	// 清除旧高亮
+	table.querySelectorAll('.search-highlight').forEach(el => {
+		el.classList.remove('search-highlight');
+	});
+	
 	const rows = table.querySelectorAll('tbody tr');
 	rows.forEach((row) => {
 		const rowEl = row as HTMLElement;
@@ -665,6 +676,9 @@ function filterBomTable(table: HTMLElement | null, keyword: string): void {
 		
 		rowEl.style.display = hasMatch ? '' : 'none';
 	});
+	
+	// 应用高亮样式到可见的匹配单元格
+	applyHighlight();
 }
 
 // 清除高亮
