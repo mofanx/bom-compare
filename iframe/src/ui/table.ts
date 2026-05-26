@@ -264,6 +264,11 @@ export function renderDiffResult(): void {
 	(document.querySelector('#panel-left .panel-label')! as HTMLElement).style.display = 'none';
 	(document.querySelector('#panel-right .panel-label')! as HTMLElement).style.display = 'none';
 
+	// 显示差异导航和筛选按钮
+	(document.getElementById('btn-prev-diff')! as HTMLElement).classList.add('visible');
+	(document.getElementById('btn-next-diff')! as HTMLElement).classList.add('visible');
+	(document.getElementById('filter-select')! as HTMLElement).classList.add('visible');
+
 	const filteredRows = filterRows(state.diffResult.rows);
 
 	renderDiffTable(leftContainer, filteredRows, 'old');

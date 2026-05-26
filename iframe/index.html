@@ -249,6 +249,19 @@
 				cursor: pointer;
 			}
 
+			/* 差异导航和筛选按钮默认隐藏，对比后显示 */
+			#btn-prev-diff,
+			#btn-next-diff,
+			.filter-select {
+				display: none;
+			}
+
+			#btn-prev-diff.visible,
+			#btn-next-diff.visible,
+			.filter-select.visible {
+				display: block;
+			}
+
 			/* Panels */
 			.panels-container {
 				display: flex;

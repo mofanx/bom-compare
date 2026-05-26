@@ -7,7 +7,7 @@ import { showLoading, updateLoadingProgress, hideLoading } from './loading';
 import { showToast } from './drop-zone';
 import { t } from '../utils/i18n';
 import { showColumnSettingsDialog } from './column-settings-dialog';
-import { renderDiffResult, filterRows, performSearch } from './table';
+import { renderDiffResult, filterRows, performSearch, renderTable } from './table';
 import { loadFile } from './drop-zone';
 import { commitEditing } from './editable';
 
@@ -129,9 +129,23 @@ function clearPanel(side: 'old' | 'new'): void {
 	(document.querySelector(`#${panelId} .panel-label`)! as HTMLElement).style.display = 'block';
 
 	state.diffResult = null;
+
+	// 隐藏差异导航和筛选按钮
+	(document.getElementById('btn-prev-diff')! as HTMLElement).classList.remove('visible');
+	(document.getElementById('btn-next-diff')! as HTMLElement).classList.remove('visible');
+	(document.getElementById('filter-select')! as HTMLElement).classList.remove('visible');
 	(document.getElementById('btn-export')! as HTMLElement).style.display = 'none';
 	document.getElementById('summary-text')!.textContent = t('summaryText');
 	document.getElementById('summary-badges')!.innerHTML = '';
+
+	// 恢复另一侧到非对比状态
+	const otherSide = side === 'old' ? 'new' : 'old';
+	const otherFile = otherSide === 'old' ? state.oldFile : state.newFile;
+	if (otherFile) {
+		const otherTableId = otherSide === 'old' ? 'table-left' : 'table-right';
+		const otherContainer = document.getElementById(otherTableId)!;
+		renderTable(otherContainer, otherFile, otherSide);
+	}
 }
 
 async function executeCompare(): Promise<void> {

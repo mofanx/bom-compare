@@ -150,6 +150,26 @@ export async function loadFile(file: File, side: 'old' | 'new'): Promise<void> {
 
 		updateLoadingProgress(100);
 
+		// 如果有对比结果，清空它并隐藏差异导航和筛选按钮
+		if (state.diffResult) {
+			state.diffResult = null;
+			(document.getElementById('btn-prev-diff')! as HTMLElement).classList.remove('visible');
+			(document.getElementById('btn-next-diff')! as HTMLElement).classList.remove('visible');
+			(document.getElementById('filter-select')! as HTMLElement).classList.remove('visible');
+			(document.getElementById('btn-export')! as HTMLElement).style.display = 'none';
+			document.getElementById('summary-text')!.textContent = t('summaryText');
+			document.getElementById('summary-badges')!.innerHTML = '';
+
+			// 恢复另一侧到非对比状态
+			const otherSide = side === 'old' ? 'new' : 'old';
+			const otherFile = otherSide === 'old' ? state.oldFile : state.newFile;
+			if (otherFile) {
+				const otherTableId = otherSide === 'old' ? 'table-left' : 'table-right';
+				const otherContainer = document.getElementById(otherTableId)!;
+				renderTable(otherContainer, otherFile, otherSide);
+			}
+		}
+
 		if (side === 'old') {
 			state.oldFile = bomFile;
 		} else {
