@@ -345,10 +345,8 @@ function renderDiffTable(container: HTMLElement, rows: RowDiff[], side: 'old' | 
 		const actionTh = document.createElement('th');
 		actionTh.textContent = t('action');
 		actionTh.style.width = '60px';
-		actionTh.style.position = 'sticky';
-		actionTh.style.right = '0';
+		actionTh.className = 'preset-header-action';
 		actionTh.style.background = 'var(--bg-elevated)';
-		actionTh.style.zIndex = '2';
 		presetHeaderRow.appendChild(actionTh);
 	}
 
