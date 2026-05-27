@@ -390,7 +390,7 @@
 				right: 0;
 				bottom: 0;
 				height: 2px;
-				background: var(--bg-elevated);
+				background: inherit;
 				border-bottom: 1px solid var(--border);
 				pointer-events: none;
 				z-index: 1;
@@ -642,6 +642,21 @@
 				position: sticky !important;
 				right: 0 !important;
 				z-index: 10 !important;
+				border-bottom: none;
+			}
+
+			/* 原始表头详情列底部分割线 */
+			tr[data-row-type="header"] td:last-child::after {
+				content: '';
+				position: absolute;
+				left: 0;
+				right: 0;
+				bottom: 0;
+				height: 2px;
+				background: inherit;
+				border-bottom: 1px solid var(--border-light);
+				pointer-events: none;
+				z-index: 1;
 			}
 
 			.bom-table th:hover {
