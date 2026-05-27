@@ -37,23 +37,42 @@ export function initPanelDivider(): void {
 }
 
 export function initSyncScroll(): void {
-	const leftTable = document.getElementById('table-left');
-	const rightTable = document.getElementById('table-right');
-	if (!leftTable || !rightTable) return;
+	const leftContainer = document.getElementById('table-left');
+	const rightContainer = document.getElementById('table-right');
+	if (!leftContainer || !rightContainer) return;
 
 	let syncing = false;
 
-	leftTable.addEventListener('scroll', () => {
+	leftContainer.addEventListener('scroll', () => {
 		if (syncing) return;
 		syncing = true;
-		rightTable.scrollTop = leftTable.scrollTop;
+		rightContainer.scrollTop = leftContainer.scrollTop;
 		syncing = false;
 	});
 
-	rightTable.addEventListener('scroll', () => {
+	rightContainer.addEventListener('scroll', () => {
 		if (syncing) return;
 		syncing = true;
-		leftTable.scrollTop = rightTable.scrollTop;
+		leftContainer.scrollTop = rightContainer.scrollTop;
 		syncing = false;
 	});
+}
+
+export function equalizeScrollHeight(): void {
+	const leftContainer = document.getElementById('table-left');
+	const rightContainer = document.getElementById('table-right');
+	if (!leftContainer || !rightContainer) return;
+
+	const leftMax = leftContainer.scrollHeight - leftContainer.clientHeight;
+	const rightMax = rightContainer.scrollHeight - rightContainer.clientHeight;
+
+	if (leftMax === rightMax) return;
+
+	if (leftMax < rightMax) {
+		const table = leftContainer.querySelector('.bom-table') as HTMLElement;
+		if (table) table.style.marginBottom = (rightMax - leftMax) + 'px';
+	} else {
+		const table = rightContainer.querySelector('.bom-table') as HTMLElement;
+		if (table) table.style.marginBottom = (leftMax - rightMax) + 'px';
+	}
 }

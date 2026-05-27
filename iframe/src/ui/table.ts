@@ -2,7 +2,7 @@ import type { BomFile, BomRow, RowDiff, DiffResult } from '../types';
 import { getColumnLetter } from '../types';
 import { getActiveColumns } from '../core/column-config';
 import { state } from './state';
-import { initSyncScroll } from './layout';
+import { initSyncScroll, equalizeScrollHeight } from './layout';
 import { showRowDetailDialog, showHeaderDetailDialog } from './dialog';
 import { addResizeHandles, initColumnResize } from './column-resize';
 import { addTooltipSupport } from './tooltip';
@@ -331,6 +331,7 @@ export function renderDiffResult(): void {
 
 	renderSummary(state.diffResult);
 	initSyncScroll();
+	equalizeScrollHeight();
 
 	// 如果有搜索关键词，重新应用高亮
 	if (state.searchKeyword) {
