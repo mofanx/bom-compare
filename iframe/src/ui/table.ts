@@ -202,7 +202,7 @@ function createRawHeaderRow(bomFile: BomFile, side: 'old' | 'new' = 'old'): HTML
 		actionTd.style.position = 'sticky';
 		actionTd.style.right = '0';
 		actionTd.style.background = 'var(--bg-surface)';
-		actionTd.style.zIndex = '1';
+		actionTd.style.zIndex = '10';
 
 		// 只在表头有差异时显示详情按钮
 		if (hasHeaderDiff()) {
