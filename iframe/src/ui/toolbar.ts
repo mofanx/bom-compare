@@ -24,6 +24,7 @@ export function initToolbar(): void {
 	const btnNextDiff = document.getElementById('btn-next-diff')!;
 	const filterSelect = document.getElementById('filter-select') as HTMLSelectElement;
 	const searchInput = document.getElementById('search-input') as HTMLInputElement;
+	const searchClear = document.getElementById('search-clear')!;
 	const btnColumnSettings = document.getElementById('btn-column-settings')!;
 	const btnSearchMode = document.getElementById('btn-search-mode')!;
 	const btnFilterMode = document.getElementById('btn-filter-mode')!;
@@ -78,6 +79,17 @@ export function initToolbar(): void {
 		state.searchKeyword = searchInput.value;
 		state.selectedRowIndex = -1;
 		performSearch();
+		// Show/hide clear button based on input value
+		searchClear.style.display = searchInput.value ? 'flex' : 'none';
+	});
+
+	searchClear.addEventListener('click', () => {
+		searchInput.value = '';
+		state.searchKeyword = '';
+		state.selectedRowIndex = -1;
+		searchClear.style.display = 'none';
+		performSearch();
+		searchInput.focus();
 	});
 
 	document.addEventListener('bom:recompare', () => {
