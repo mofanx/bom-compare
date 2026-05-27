@@ -84,7 +84,9 @@ function updateAllText(): void {
 	// Update action column headers
 	document.querySelectorAll('th').forEach(el => {
 		if (el.textContent === '操作' || el.textContent === 'Action') {
+			const rh1 = (el as HTMLElement).querySelector('.column-resize-handle');
 			el.textContent = t('action');
+			if (rh1) el.appendChild(rh1);
 		}
 	});
 
@@ -105,7 +107,9 @@ function updateAllText(): void {
 		// Try to find which column this header represents by matching against both labels
 		const standardCol = activeColumns.find(col => col.label === text || col.labelZh === text);
 		if (standardCol) {
+			const rh = th.querySelector('.column-resize-handle');
 			th.textContent = lang === 'zh-Hans' ? standardCol.labelZh : standardCol.label;
+			if (rh) th.appendChild(rh);
 		}
 	});
 
@@ -116,7 +120,9 @@ function updateAllText(): void {
 
 		const standardCol = activeColumns.find(col => col.label === text || col.labelZh === text);
 		if (standardCol) {
+			const rh = th.querySelector('.column-resize-handle');
 			th.textContent = lang === 'zh-Hans' ? standardCol.labelZh : standardCol.label;
+			if (rh) th.appendChild(rh);
 		}
 	});
 
