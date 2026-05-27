@@ -9,6 +9,9 @@ function handleMouseDown(e: MouseEvent): void {
 	const th = target.parentElement as HTMLTableCellElement;
 	if (!th || !th.dataset.field) return;
 
+	e.preventDefault();
+	e.stopPropagation();
+
 	const startX = e.clientX;
 	const startWidth = th.offsetWidth;
 	const table = th.closest('table') as HTMLTableElement;

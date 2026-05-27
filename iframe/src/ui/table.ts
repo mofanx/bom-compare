@@ -110,34 +110,26 @@ function createPresetHeaderTh(columnIndex: number, bomFile: BomFile, side: 'old'
 	th.title = t('clickToRemap');
 
 	if (mapping.targetField === 'ignore') {
+		const rh1 = th.querySelector('.column-resize-handle');
 		th.textContent = getColumnLetter(columnIndex);
+		if (rh1) th.appendChild(rh1);
 		th.classList.add('unmapped');
 		th.style.background = 'var(--bg-hover)';
 		th.style.color = 'var(--text-muted)';
 		th.style.paddingLeft = '10px';
 	} else {
 		const standardCol = getActiveColumns().find(col => col.field === mapping.targetField);
+		const rh2 = th.querySelector('.column-resize-handle');
 		th.textContent = standardCol ? (lang === 'zh-Hans' ? standardCol.labelZh : standardCol.label) : String(mapping.targetField);
+		if (rh2) th.appendChild(rh2);
 		th.classList.add('mapped');
 	}
 
 	th.dataset.field = String(mapping.targetField);
 
-	th.addEventListener('mousemove', (e) => {
-		const rect = th.getBoundingClientRect();
-		const distanceFromRight = rect.right - e.clientX;
-		if (distanceFromRight < 10) {
-			th.style.cursor = 'col-resize';
-		} else {
-			th.style.cursor = 'pointer';
-		}
-	});
-
-	th.addEventListener('mouseleave', () => {
-		th.style.cursor = 'pointer';
-	});
-
 	th.addEventListener('click', (e) => {
+		const rect = th.getBoundingClientRect();
+		if (rect.right - e.clientX < 12) return;
 		e.stopPropagation();
 		if (!th.querySelector('select')) {
 			showMappingDropdown(th, columnIndex, String(mapping.targetField), bomFile, side);
@@ -281,8 +273,10 @@ function showMappingDropdown(th: HTMLTableCellElement, columnIndex: number, curr
 		}
 	});
 
+	const resizeHandle = th.querySelector('.column-resize-handle');
 	th.textContent = '';
 	th.appendChild(select);
+	if (resizeHandle) th.appendChild(resizeHandle);
 	select.focus();
 }
 
@@ -291,14 +285,18 @@ function restorePresetHeaderText(th: HTMLTableCellElement, columnIndex: number, 
 	const mapping = bomFile.columnMappings[columnIndex];
 
 	if (mapping.targetField === 'ignore') {
+		const rh = th.querySelector('.column-resize-handle');
 		th.textContent = getColumnLetter(columnIndex);
+		if (rh) th.appendChild(rh);
 		th.classList.add('unmapped');
 		th.classList.remove('mapped');
 		th.style.background = 'var(--bg-hover)';
 		th.style.color = 'var(--text-muted)';
 	} else {
 		const standardCol = getActiveColumns().find(col => col.field === mapping.targetField);
+		const rh2 = th.querySelector('.column-resize-handle');
 		th.textContent = standardCol ? (lang === 'zh-Hans' ? standardCol.labelZh : standardCol.label) : String(mapping.targetField);
+		if (rh2) th.appendChild(rh2);
 		th.classList.remove('unmapped');
 		th.classList.add('mapped');
 		th.style.background = '';
