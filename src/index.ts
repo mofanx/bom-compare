@@ -15,7 +15,7 @@ import * as extensionConfig from '../extension.json';
 // eslint-disable-next-line unused-imports/no-unused-vars
 export function activate(status?: 'onStartupFinished', arg?: string): void {}
 
-export function openBomCompare(): void {
+export async function openBomCompare(): Promise<void> {
 	eda.sys_IFrame.openIFrame('/iframe/index.html', 1400, 800, 'bom-compare', {
 		title: eda.sys_I18n.text('BOM Compare'),
 		maximizeButton: true,

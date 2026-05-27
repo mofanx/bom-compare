@@ -15,7 +15,7 @@ let currentLanguage: Language = 'zh-Hans';
 
 export function setLanguage(lang: Language): void {
 	currentLanguage = lang;
-	localStorage.setItem('bom-compare-language', lang);
+	// 不保存到 localStorage，只在内存中保存
 	updateAllText();
 }
 
@@ -33,10 +33,21 @@ export function t(key: string, params?: Record<string, string | number>): string
 	return text;
 }
 
-export function initI18n(): void {
-	const saved = localStorage.getItem('bom-compare-language') as Language;
-	if (saved && translations[saved]) {
-		currentLanguage = saved;
+export async function initI18n(): Promise<void> {
+	// 直接在 iframe 内调用 eda.sys_I18n.getCurrentLanguage()
+	try {
+		if (typeof eda !== 'undefined' && eda.sys_I18n && eda.sys_I18n.getCurrentLanguage) {
+			const mainLang = await eda.sys_I18n.getCurrentLanguage();
+			// 映射主程序语言到扩展支持的语言
+			if (mainLang === 'zh-Hans' || mainLang === 'zh') {
+				currentLanguage = 'zh-Hans';
+			} else if (mainLang === 'en') {
+				currentLanguage = 'en';
+			}
+		}
+	} catch (err) {
+		// 获取失败时使用默认语言
+		currentLanguage = 'zh-Hans';
 	}
 }
 
@@ -115,7 +126,7 @@ function updateAllText(): void {
 	});
 }
 
-export function addI18nSupport(): void {
-	initI18n();
+export async function addI18nSupport(): Promise<void> {
+	await initI18n();
 	updateAllText();
 }

@@ -7,9 +7,9 @@ import { initColumnResize } from './ui/column-resize';
 import { initTooltip } from './ui/tooltip';
 import { addI18nSupport, setLanguage, getLanguage } from './utils/i18n';
 
-function main(): void {
+async function main(): Promise<void> {
 	console.log('[BOM Compare] bundle.js loaded, initializing...');
-	addI18nSupport();
+	await addI18nSupport();
 	initDropZones();
 	initToolbar();
 	initPanelDivider();
