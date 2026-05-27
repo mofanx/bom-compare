@@ -156,7 +156,7 @@ export async function loadFile(file: File, side: 'old' | 'new'): Promise<void> {
 			(document.getElementById('btn-prev-diff')! as HTMLElement).classList.remove('visible');
 			(document.getElementById('btn-next-diff')! as HTMLElement).classList.remove('visible');
 			(document.getElementById('filter-select')! as HTMLElement).classList.remove('visible');
-			(document.getElementById('btn-export')! as HTMLElement).style.display = 'none';
+			(document.getElementById('btn-export')! as HTMLElement).classList.remove('visible');
 			document.getElementById('summary-text')!.textContent = t('summaryText');
 			document.getElementById('summary-badges')!.innerHTML = '';
 

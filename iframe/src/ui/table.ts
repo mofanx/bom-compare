@@ -12,6 +12,27 @@ import { getLanguage, t } from '../utils/i18n';
 import { mapSingleColumn } from '../core/column-mapper';
 import { renderSummary } from './summary';
 
+let _measureSpan: HTMLSpanElement | null = null;
+
+function measureText(text: string): number {
+	if (!_measureSpan) {
+		_measureSpan = document.createElement('span');
+		_measureSpan.style.cssText = 'position:absolute;visibility:hidden;white-space:nowrap;font:500 11px system-ui,sans-serif;';
+		document.body.appendChild(_measureSpan);
+	}
+	_measureSpan.textContent = text;
+	return _measureSpan.offsetWidth;
+}
+
+function calcActionColumnWidth(): string {
+	const headerWidth = Math.max(measureText('操作'), measureText('ACTION'));
+	const buttonWidth = Math.max(measureText('详情'), measureText('Detail'));
+	// header: text + 20 (td padding)
+	// button: text + 18 (button padding 16 + border 2) + 20 (td padding)
+	const colWidth = Math.max(headerWidth + 20, buttonWidth + 40);
+	return colWidth + 'px';
+}
+
 export function renderTable(container: HTMLElement, bomFile: BomFile, side: 'old' | 'new'): void {
 	const table = document.createElement('table');
 	table.className = 'bom-table';
@@ -321,6 +342,7 @@ export function renderDiffResult(): void {
 	(document.getElementById('btn-prev-diff')! as HTMLElement).classList.add('visible');
 	(document.getElementById('btn-next-diff')! as HTMLElement).classList.add('visible');
 	(document.getElementById('filter-select')! as HTMLElement).classList.add('visible');
+	(document.getElementById('btn-export')! as HTMLElement).classList.add('visible');
 
 	const filteredRows = filterRows(state.diffResult.rows);
 
@@ -375,7 +397,8 @@ function renderDiffTable(container: HTMLElement, rows: RowDiff[], side: 'old' | 
 	if (side === 'new') {
 		const actionTh = document.createElement('th');
 		actionTh.textContent = t('action');
-		actionTh.style.width = '60px';
+		actionTh.style.width = calcActionColumnWidth();
+		actionTh.style.whiteSpace = 'nowrap';
 		actionTh.className = 'preset-header-action';
 		actionTh.style.background = 'var(--bg-elevated)';
 		presetHeaderRow.appendChild(actionTh);

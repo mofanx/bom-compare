@@ -289,14 +289,16 @@
 			/* 差异导航和筛选按钮默认隐藏，对比后显示 */
 			#btn-prev-diff,
 			#btn-next-diff,
-			.filter-select {
+			.filter-select,
+			#btn-export {
 				display: none;
 			}
 
 			#btn-prev-diff.visible,
 			#btn-next-diff.visible,
-			.filter-select.visible {
-				display: block;
+			.filter-select.visible,
+			#btn-export.visible {
+				display: inline-flex;
 			}
 
 			/* Panels */
@@ -643,6 +645,11 @@
 				right: 0 !important;
 				z-index: 10 !important;
 				border-bottom: none;
+			}
+
+			/* 详情列：���用 ellipsis，防止按钮被裁切时出现 "..." */
+			.bom-table td:last-child {
+				text-overflow: clip;
 			}
 
 			/* 原始表头详情列底部分割线 */
@@ -1242,11 +1249,11 @@
 						<option value="removed" data-i18n="filterRemoved">仅缺失</option>
 						<option value="same" data-i18n="filterSame">仅相同</option>
 					</select>
+					<button id="btn-export" class="btn" data-i18n="exportReport">导出报告</button>
 				</div>
 				<div class="action-bar-right">
 					<button id="btn-lang" class="btn btn-ghost" data-i18n-title="switchLanguage" title="切换语言">中/EN</button>
 					<button id="btn-column-settings" class="btn btn-ghost" data-i18n="columnMapping" data-i18n-title="columnMappingTooltip">列名映射</button>
-					<button id="btn-export" class="btn" style="display:none;" data-i18n="exportReport">导出报告</button>
 					<button id="btn-compare" class="btn btn-primary" data-i18n="executeCompare">执行 BOM 比对</button>
 				</div>
 			</div>
